@@ -1,0 +1,4 @@
+{
+	"port": 4000,
+	"dbConnection": "mongodb://10.10.73.207:27017, 10.10.73.208:27017/PSPMS_Dev?replicaSet=pspms"
+}
