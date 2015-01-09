@@ -4,5 +4,6 @@ module.exports = new Schema({
 	name: { type: String },
 	password: { type: String },
 	salt: { type: String },
-	role: { type: Number }
+	role: { type: Number },
+	resourceId: { type: Number }
 });

@@ -1,7 +1,7 @@
 var Promise = require("bluebird");
 
 var model = require("../data/model");
-var dataHash = require("./hash");
+var dataHash = require("../helpers/hash");
 var hash = dataHash.hash;
 var md5 = dataHash.md5;
 
@@ -18,20 +18,26 @@ exports.checkPassword = function(uid, pwd) {
 			.then(function(u) {
 
 				if(u != null) {
+					
 					user = u;
 
 					return hash(pwd, user.salt);
 				}
 				// can't find user
-				else reject("Can't find user.");
+				else {
+
+					reject("Can't find user.");	
+				} 
 			})
 			.then(function(code) {
 
 				if(user.password === code) {
+
 					resolve(user);
 				}
 				// wrong password
 				else {
+
 					reject("Wrong password.");
 				}
 			})

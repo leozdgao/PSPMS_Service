@@ -14,7 +14,7 @@ app.use('/rest', require('./routes/rest'));
 app.use(function(err, req, res, next) {
 
     console.log(err);
-    res.status(500).end();
+    res.status(500).json(err);
 });
 
 var config = require('./config.json');
