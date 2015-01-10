@@ -18,7 +18,7 @@ app.use(function(err, req, res, next) {
 });
 
 var config = require('./config.json');
-app.set('port', process.env.PORT || config.port || 4000);
+var port = process.env.PORT || config.port || 4000;
 
 var Promise = require("bluebird");
 var mongoose = require("mongoose");
@@ -33,8 +33,9 @@ var dbConfig = {
 mongoose.connectAsync(config.dbConnection, dbConfig)
     .then(function() {
 
-        var server = app.listen(app.get('port'), function() {
-          console.log('Express server listening on port ' + server.address().port);
+        app.listen(port, function() {
+            
+            console.log('Express server listening on port ' + port);
         });
     })
     .catch(function(err) {
@@ -43,5 +44,6 @@ mongoose.connectAsync(config.dbConnection, dbConfig)
     });
     
 mongoose.connection.on("error", function(err) {
+
     console.log(err.err || err.message || "Error occurred on connection.");
 })
