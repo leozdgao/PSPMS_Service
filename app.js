@@ -43,8 +43,8 @@ mongoose.connectAsync(config.dbConnection, dbConfig)
         
         console.log(err.err || err.message || "Connect failed.");
     });
-
+    
 mongoose.connection.on("error", function(err) {
 
-    console.log(err);
+    console.log(err.err || err.message || "Error occurred on connection.");
 });

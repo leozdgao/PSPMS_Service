@@ -28,8 +28,6 @@ module.exports = function() {
 			}, 120000);
 		}
 
-		//console.log(record);
-
 		if(index > -1) res.status(403).end();
 		else next();
 	}

@@ -1,4 +1,3 @@
-
 // convert 1 level obj to normal obj
 exports.resolveObject = function resolveObject (obj) {
 

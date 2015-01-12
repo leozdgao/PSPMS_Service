@@ -9,8 +9,9 @@ function ScalableCache(capacity) {
 
 ScalableCache.prototype.set = function(token, session) {
 
+	var index = this.keys.indexOf(token);
 	// overflow
-	if(this.keys.length >= this.capacity) {
+	if(index < 0 && this.keys.length >= this.capacity) {
 
 		// remove old key
 		var oldKey = this.keys.shift();
@@ -19,7 +20,7 @@ ScalableCache.prototype.set = function(token, session) {
 
 	// set cache and key
 	this.cache[token] = session;
-	this.keys.push(token);
+	if(index < 0) this.keys.push(token);
 }
 
 ScalableCache.prototype.get = function(token) {
