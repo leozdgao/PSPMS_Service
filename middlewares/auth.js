@@ -44,7 +44,7 @@ module.exports = function() {
 			req.session = session;
 			req.isAuth = !!session.role;
 			req.isMember = session.role >= 1;
-			req.isLeader = session.role >=2;
+			// req.isLeader = session.role >=2;
 			req.isAdmin = session.role < 0;
 		}
 	}

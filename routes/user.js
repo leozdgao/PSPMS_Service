@@ -1,5 +1,4 @@
-var express = require("express");
-var router = express.Router();
+var router = require("express").Router();
 
 var Promise = require("bluebird");
 var AccountController = require("../controllers/accountController");
@@ -14,6 +13,7 @@ router.use(bodyParser.urlencoded({ extended: false }));
 // - 1  wrong uid or pwd
 // - 2  miss token
 // - 3  session expired
+// - 4  user existed
 // - 9  unknown internal error
 
 router.post("/login", function(req, res) {
@@ -27,24 +27,26 @@ router.post("/login", function(req, res) {
 			.then(function(user) {
 				console.log("After check password.");
 
-				return AccountController.generateSession(user);
+				return Promise.all([AccountController.generateSession(user),
+									AccountController.updateLoginDate(user._id)]);
 			})
 			.then(function(results) {
 
-				var session = results[0];
+				var session = results[0][0];
 				console.log('After generate Session');
 
 				res.cookie("token", session.token, { maxAge: 3600000 });
-				res.status(200).json({ code: 0, msg: "Login successfully.", user: session });
+				res.status(200).json({ code: 0, msg: "Login successfully.", session: session });
 			})
 			.catch(function(err) {
+				console.log(err);
 
-				res.status(401).json({ code: 1, msg: "uid or pwd is wrong" });
+				res.status(400).json({ code: 1, msg: "uid or pwd is wrong" });
 			});
 	}
 	else {
 
-		res.status(401).json({ code: 1, msg: "uid or pwd can't be empty." });
+		res.status(400).json({ code: 1, msg: "uid or pwd can't be empty." });
 	}
 });
 
@@ -94,6 +96,37 @@ router.get("/relog", function(req, res) {
 
 			res.status(400).json({ code: 9, msg: "Error occurred while getting session." });
 		});
+});
+
+router.post("/signup", function(req, res) {
+
+	var body = req.body;
+	var uid = body.uid;
+	var pwd = body.pwd;
+
+	if(uid && pwd) {
+
+		AccountController.newUser(uid, pwd)
+			.then(function(user) {
+
+				res.status(200).json(user);
+			})
+			.catch(function(err) {
+
+				if(err === "User already exist") {
+
+					res.status(400).json({ code: 4, msg: "User already exist." });
+				}
+				else {
+
+					res.status(400).json({ code: 9, msg: "Error occurred while creating user." });	
+				}
+			});
+	}
+	else {
+
+		res.status(400).json({ code: 1, msg: "uid or pwd can't be empty." });
+	}
 });
 
 module.exports = router;
