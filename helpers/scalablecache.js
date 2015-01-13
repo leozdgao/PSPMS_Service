@@ -27,3 +27,9 @@ ScalableCache.prototype.get = function(token) {
 
 	return this.cache[token];
 }
+
+ScalableCache.prototype.clear = function() {
+
+	this.keys = [];
+	this.cache = {};
+}

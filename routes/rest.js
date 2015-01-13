@@ -1,10 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
-var authMiddleware = require('../middlewares/auth');
-
 // open authentication for every
-router.use(authMiddleware());
+router.use(require('../middlewares/auth')());
 
 // router.use("/company", require("./rest/companyRest"));
 // router.use("/project", require("./rest/projectRest"));
@@ -12,6 +10,12 @@ router.use("/resource", require("./rest/resourceRest"));
 // router.use("/job", require("./rest/jobRest"));
 
 module.exports = router;
+
+// code
+// 0 - success
+// 1 - invalid request
+// 2 - unAuthorized
+// 9 - internal error
 
 // var config = {
 // 	"/resource": {
