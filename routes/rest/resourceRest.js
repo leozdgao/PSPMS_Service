@@ -11,6 +11,59 @@ var bCache = new Cache(500);
 // put enable resource in cache first
 prepareCache();
 
+router.use("/help", function(req, res) {
+
+	// TODO: help list
+	res.status(200).json({
+		availableApi: [
+			{
+				description: "Get a single resource object.",
+				method: "GET",
+				href: "",
+				auth: 1
+			}
+		]
+	});
+});
+
+// auth first
+router.use(function(req, res, next) {
+
+	if(req.needAuth) {
+
+		if(req.method !== "GET") {
+
+			// modifying resource is only permitted to admin or leader
+			if(req.isAdmin || req.isLeader) {
+
+				next();
+			}
+			else {
+
+				res.status(401).json({ code: 2, msg: "UnAuthorized." });
+			}	
+		}
+		else {
+
+			// own users who logged in can view resources
+			if(req.isAuth) {
+
+				next();
+			}
+			else {
+
+				res.status(401).json({ code: 2, msg: "UnAuthorized." });
+			}
+		}
+		
+	}
+	else {
+		
+		next();
+	}
+});
+
+router.use(require("body-parser").json());
 
 router.param("id", function(req, res, next, id) {
 
@@ -24,6 +77,7 @@ router.param("id", function(req, res, next, id) {
 	}
 });
 
+// get a single resource
 router.get("/:id", function(req, res) {
 
 	var id = req.params.id;
@@ -32,7 +86,7 @@ router.get("/:id", function(req, res) {
 
 	if(!force && sCache.keys.indexOf(id) > -1) {
 
-		//get cache
+		//get from cache
 		res.status(200).json({ code: 0, results: sCache.get(id) });
 	}
 	else {
@@ -40,16 +94,24 @@ router.get("/:id", function(req, res) {
 		ResourceController.getResourceById(id, query.fields, query.options)
 			.then(function(resource) {
 
-				sCache.set(id, resource);
-				res.status(200).json({ code: 0, results: resource });
+				if(resolver.isDefined(resource)) {
+
+					sCache.set(id, resource);
+					res.status(200).json({ code: 0, results: resource });
+				}
+				else {
+
+					res.status(404).json({ code: 3, msg: "Can't find resource " + id + "." });
+				}
 			})
 			.catch(function(err) {
 
-				res.status(500).json({ code: 9, msg: "Internal error" });
-			});	
+				res.status(500).json({ code: 9, msg: "Unknown error during get resource " + id + "." });
+			});
 	}
 });
 
+// return list of resources
 router.get("/", function(req, res) {
 
 	var query = resolver.resolveObject(req.query);
@@ -75,20 +137,6 @@ router.get("/", function(req, res) {
 	}
 });
 
-router.use(function(req, res, next) {
-
-	if(req.isAdmin || req.isLeader) {
-
-		next();
-	}
-	else {
-
-		res.status(401).json({ code: 2, msg: "UnAuthorized." });
-	}
-});
-
-router.use(require("body-parser").json());
-
 router.post("/", function(req, res) {
 
 	var body = req.body;
@@ -105,29 +153,66 @@ router.post("/", function(req, res) {
 		});
 });
 
-router.put("/", function(req, res) {
+// replace resource with new obj
+router.put("/:id", function(req, res) {
 
 	var body = req.body;
+	var id = req.params.id;
 
-	ResourceController.updateResource(body.conditions, body.update, body.options)
-		.then(function(results) {
+	// key of body.update can't start with '$'
+	if(body.update && Object.keys(body.update).some(function(key) { return !/^\$/.test(key); })) {
 
-			var num = results[1] ? results[0] : 0;
-			res.status(200).json({ code: 0, numAffected: num, msg: "Successful updating" });
-		})
-		.catch(function(err) {
+		ResourceController.updateResource(body.conditions, body.update, body.options)
+			.then(function(results) {
 
-			console.log("Update error: ", err);
-			res.status(500).json({ code: 9, msg: "Unkown Error" });
-		});
+				var num = results[1] ? results[0] : 0;
+				res.status(200).json({ code: 0, numAffected: num, msg: "Successful updating" });
+			})
+			.catch(function(err) {
+
+				console.log("Update error: ", err);
+				res.status(500).json({ code: 9, msg: "Unkown Error" });
+			});	
+	}
+	else {
+
+		res.status(400).json({ code: 1, msg: "Invalid request." });
+	}
+});
+
+// update part of resource
+router.patch("/:id", function(req, res) {
+
+	var id = req.params.id;
+	var validKey = [ "$set", "$unset", "$push", "$pull" ];
+
+	var body = req.body;
+	if(body.update && validKey.some(function(key) { 
+		return resolver.isDefined(body.update[key]); })) {
+
+		ResourceController.updateResourceById(id, body.update, body.options)
+			.then(function(newResource) {
+
+				res.status(200).json({ code: 0, msg: "Successful updating", origin: resource, new: newResource });
+			})
+			.catch(function(err) {
+
+				console.log("Update error: ", err);
+				res.status(500).json({ code: 9, msg: "Unkown Error" });
+			});
+	}
+	else {
+
+		res.status(400).json({ code: 1, msg: "Invalid request." });
+	}
 });
 
 router.delete("/:id", function(req, res) {
 
-	var id = req.params.id;
+	var resource = req.resource;
 	var body = req.body;
 
-	ResourceController.removeResourceById(id, body.options)
+	ResourceController.removeResourceById(resource.resourceId, body.options)
 		.then(function(results) {
 
 			var num = results[1] ? results[0] : 0;

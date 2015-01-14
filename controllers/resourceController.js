@@ -14,7 +14,7 @@ ResourceController.getEnableResources = function(conditions, fields, options) {
 
 ResourceController.getResourceById = function(id, fields, options) {
 
-	return this._findOne({ resourceId: id }, fields, options);
+	return this._findOne({ resourceId: id, enable: true }, fields, options);
 }
 
 ResourceController.getResources = function(conditions, fields, options) {
@@ -25,6 +25,11 @@ ResourceController.getResources = function(conditions, fields, options) {
 ResourceController.addResource = function(resource) {
 
 	return this._insert(resource);
+}
+
+ResourceController.updateResourceById = function(id, update, options) {
+
+	return this._updateOne({ resourceId: id }, update, options);
 }
 
 ResourceController.updateResource = function(conditions, update, options) {

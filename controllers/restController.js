@@ -35,9 +35,23 @@ RestController.prototype._update = function(conditions, update, options) {
 	return Model.updateAsync(conditions, update, options);
 }
 
+RestController.prototype._updateOne = function(conditions, update, options) {
+
+	var Model = this.model;
+
+	return Model.findOneAndUpdateAsync(conditions, update, options);
+}
+
 RestController.prototype._remove = function(conditions) {
 
 	var Model = this.model;
 
 	return Model.removeAsync(conditions);
+}
+
+RestController.prototype._removeOne = function(conditions) {
+
+	var Model = this.model;
+
+	return Model.findOneAndRemoveAsync(conditions);
 }

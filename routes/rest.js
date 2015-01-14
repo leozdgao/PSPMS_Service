@@ -1,8 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
+var config = require("../config.json");
 // open authentication for every
-router.use(require('../middlewares/auth')());
+if(config.auth) router.use(require('../middlewares/auth')());
 
 // router.use("/company", require("./rest/companyRest"));
 // router.use("/project", require("./rest/projectRest"));
@@ -15,6 +16,7 @@ module.exports = router;
 // 0 - success
 // 1 - invalid request
 // 2 - unAuthorized
+// 3 - not find
 // 9 - internal error
 
 // var config = {
