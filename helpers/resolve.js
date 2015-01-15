@@ -82,7 +82,7 @@ exports.isNumber = function isNumber(num) {
 
 exports.isDefined = function isDefined(obj) {
 
-	return typeof obj !== "undefined" || obj !== null;
+	return typeof obj !== "undefined" && obj !== null;
 }
 
 exports.isUndefined = function isUndefined(obj) {

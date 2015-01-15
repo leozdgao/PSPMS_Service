@@ -3,6 +3,10 @@ var path = require('path');
 
 var app = express();
 
+var Promise = require("bluebird");
+var mongoose = require("mongoose");
+Promise.promisifyAll(mongoose);
+
 app.use(require('morgan')('dev'));
 // app.use(express.static(path.join(__dirname, 'public')));
 
@@ -19,10 +23,6 @@ app.use(function(err, req, res, next) {
 
 var config = require('./config.json');
 var port = process.env.PORT || config.port || 4000;
-
-var Promise = require("bluebird");
-var mongoose = require("mongoose");
-Promise.promisifyAll(mongoose);
 
 // set db connectiion config, timeout 5s
 var dbConfig = {

@@ -1,6 +1,6 @@
-var RestController = require("restController");
+var RestController = require("./restController");
 var resolver = require("../helpers/resolve");
-var resource = require("../data/model").Resource;
+var resource = require("../models/model").Resource;
 
 var ResourceController = new RestController(resource);
 

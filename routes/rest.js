@@ -17,6 +17,7 @@ module.exports = router;
 // 1 - invalid request
 // 2 - unAuthorized
 // 3 - not find
+// 4 - update not affect
 // 9 - internal error
 
 // var config = {

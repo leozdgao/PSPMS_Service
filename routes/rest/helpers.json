@@ -1,0 +1,38 @@
+{
+	"resource": [{
+		"description": "Get a single resource object.",
+		"method": "GET",
+		"href": "rest/resource/:id",
+		"auth": 1
+	}, {
+		"description": "Get an array of resource objects.",
+		"method": "GET",
+		"href": "rest/resource/?param=",
+		"auth": 1
+	}, {
+		"description": "Insert a new resource",
+		"method": "POST",
+		"href": "rest/resource",
+		"auth": 2
+	}, {
+		"description": "Replace a resource with a new object.",
+		"method": "PUT",
+		"href": "rest/resource/:id",
+		"auth": 2
+	}, {
+		"description": "Update some fields of resource.",
+		"method": "PATCH",
+		"href": "rest/resource/:id",
+		"auth": 2
+	}, {
+		"description": "Remove a single resource object.",
+		"method": "DELETE",
+		"href": "rest/resource/:id",
+		"auth": 2
+	}, {
+		"description": "Remove some resources according the conditions",
+		"method": "DELETE",
+		"href": "rest/resource",
+		"auth": 2
+	}]
+}

@@ -13,16 +13,8 @@ prepareCache();
 
 router.use("/help", function(req, res) {
 
-	// TODO: help list
 	res.status(200).json({
-		availableApi: [
-			{
-				description: "Get a single resource object.",
-				method: "GET",
-				href: "",
-				auth: 1
-			}
-		]
+		availableApi: require("./helpers.json").resource
 	});
 });
 
@@ -114,6 +106,7 @@ router.get("/:id", function(req, res) {
 // return list of resources
 router.get("/", function(req, res) {
 
+	var force = !!req.get("X-noCache");
 	var query = resolver.resolveObject(req.query);
 	var cacheKey = JSON.stringify(query);
 
@@ -144,7 +137,7 @@ router.post("/", function(req, res) {
 	ResourceController.addResource(body)
 		.then(function(results) {
 
-			res.status(200).json({ code: 0, numAffected: results[1], msg: "Successful creating" });			
+			res.status(200).json({ code: 0, numAffected: results[1], msg: "Successful creating." });			
 		})
 		.catch(function(err) {
 
@@ -158,20 +151,29 @@ router.put("/:id", function(req, res) {
 
 	var body = req.body;
 	var id = req.params.id;
+	var options = body.options || {};
+	options.runValidators = true;
 
 	// key of body.update can't start with '$'
 	if(body.update && Object.keys(body.update).some(function(key) { return !/^\$/.test(key); })) {
 
-		ResourceController.updateResource(body.conditions, body.update, body.options)
+		ResourceController.updateResource({ resourceId: id }, body.update, options)
 			.then(function(results) {
 
 				var num = results[1] ? results[0] : 0;
-				res.status(200).json({ code: 0, numAffected: num, msg: "Successful updating" });
+				if(num > 0) {
+
+					res.status(200).json({ code: 0, msg: "Successful updating." });	
+				}
+				else {
+
+					res.status(400).json({ code: 4, msg: "Update not affected." });
+				}
 			})
 			.catch(function(err) {
 
 				console.log("Update error: ", err);
-				res.status(500).json({ code: 9, msg: "Unkown Error" });
+				res.status(500).json({ code: 9, msg: "Unkown Error." });
 			});	
 	}
 	else {
@@ -185,34 +187,39 @@ router.patch("/:id", function(req, res) {
 
 	var id = req.params.id;
 	var validKey = [ "$set", "$unset", "$push", "$pull" ];
-
 	var body = req.body;
-	if(body.update && validKey.some(function(key) { 
-		return resolver.isDefined(body.update[key]); })) {
+	var options = body.options || {};
+	options.runValidators = true;
 
-		ResourceController.updateResourceById(id, body.update, body.options)
-			.then(function(newResource) {
+	ResourceController.updateResourceById(id, body.update, options)
+		.then(function(newResource) {
 
-				res.status(200).json({ code: 0, msg: "Successful updating", origin: resource, new: newResource });
-			})
-			.catch(function(err) {
+			res.status(200).json({ code: 0, msg: "Successful updating", new: newResource });
+		})
+		.catch(function(err) {
+
+			if(err.cause && err.cause.name == "MongoError") {
+
+				res.status(400).json({ code: 1, msg: "Invalid request", errmsg: err.errmsg });
+			}
+			else if(err.name === "ValidationError") {
+
+				res.status(400).json({ code: 1, msg: "Invalid request", errors: JSON.stringify(err.errors) });
+			}
+			else {
 
 				console.log("Update error: ", err);
-				res.status(500).json({ code: 9, msg: "Unkown Error" });
-			});
-	}
-	else {
-
-		res.status(400).json({ code: 1, msg: "Invalid request." });
-	}
+				res.status(500).json({ code: 9, msg: "Unkown Error" });	
+			}
+		});
 });
 
 router.delete("/:id", function(req, res) {
 
-	var resource = req.resource;
+	var id = req.params.id;
 	var body = req.body;
 
-	ResourceController.removeResourceById(resource.resourceId, body.options)
+	ResourceController.removeResourceById(id, body.options)
 		.then(function(results) {
 
 			var num = results[1] ? results[0] : 0;

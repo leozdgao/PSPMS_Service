@@ -20,7 +20,7 @@ module.exports = function() {
 			var session = sessionCache.get(token);
 			if(session) {
 
-				setRequest(session);
+				setProperties(session);
 				next();
 			}
 			else {
@@ -30,7 +30,7 @@ module.exports = function() {
 
 						//save cache
 						sessionCache.set(token, session || void(0));
-						setRequest(session);
+						setProperties(session);
 					})
 					// .catch(function() {  })
 					.finally(function() {
@@ -41,11 +41,11 @@ module.exports = function() {
 		}
 		else {
 
-			setRequest();
+			setProperties();
 			next();
 		} 	
 
-		function setRequest(session) {
+		function setProperties(session) {
 
 			var session = (resolver.isDefined(session) && session.expire >= Date.now())
 							 ? session :  {};
