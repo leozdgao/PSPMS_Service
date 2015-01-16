@@ -28,6 +28,17 @@ ScalableCache.prototype.get = function(token) {
 	return this.cache[token];
 }
 
+ScalableCache.prototype.remove = function(id) {
+
+	var index = this.keys.indexOf(id);
+
+	if(index > -1) {
+
+		this.keys.splice(index);
+		this.cache[id] = void(0);
+	}
+}
+
 ScalableCache.prototype.clear = function() {
 
 	this.keys = [];

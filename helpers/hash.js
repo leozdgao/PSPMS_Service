@@ -4,7 +4,7 @@ var Promise = require('bluebird');
 var len = 128;
 var iterations = 12000;
 
-exports.hash = function (pwd, salt) {
+exports.salthash = function (pwd, salt) {
 
     return new Promise(function(resolve, reject) {
 

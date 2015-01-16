@@ -4,12 +4,12 @@ var router = express.Router();
 var ResourceController = require("../../controllers/resourceController");
 var resolver = require("../../helpers/resolve");
 
-var Cache = require("../../helpers/scalablecache");
-var sCache = new Cache(50);
-var bCache = new Cache(500);
+// var Cache = require("../../helpers/scalablecache");
+// var sCache = new Cache(50);
+// var bCache = new Cache(500);
 
 // put enable resource in cache first
-prepareCache();
+// prepareCache();
 
 router.use("/help", function(req, res) {
 
@@ -22,7 +22,7 @@ router.use("/help", function(req, res) {
 router.use(function(req, res, next) {
 
 	if(req.needAuth) {
-
+		
 		if(req.method !== "GET") {
 
 			// modifying resource is only permitted to admin or leader
@@ -55,8 +55,6 @@ router.use(function(req, res, next) {
 	}
 });
 
-router.use(require("body-parser").json());
-
 router.param("id", function(req, res, next, id) {
 
 	if(!resolver.isNumber(id)) {
@@ -73,22 +71,22 @@ router.param("id", function(req, res, next, id) {
 router.get("/:id", function(req, res) {
 
 	var id = req.params.id;
-	var force = !!req.get("X-noCache");
+	// var force = !!req.get("X-noCache");
 	var query = resolver.resolveObject(req.query);
 
-	if(!force && sCache.keys.indexOf(id) > -1) {
+	// if(!force && sCache.keys.indexOf(id) > -1) {
 
-		//get from cache
-		res.status(200).json({ code: 0, results: sCache.get(id) });
-	}
-	else {
+	// 	//get from cache
+	// 	res.status(200).json({ code: 0, results: sCache.get(id) });
+	// }
+	// else {
 
-		ResourceController.getResourceById(id, query.fields, query.options)
+		ResourceController.getResourceById(id, query.fields, query.options, req.isAdmin)
 			.then(function(resource) {
 
 				if(resolver.isDefined(resource)) {
 
-					sCache.set(id, resource);
+					// sCache.set(id, resource);
 					res.status(200).json({ code: 0, results: resource });
 				}
 				else {
@@ -98,37 +96,40 @@ router.get("/:id", function(req, res) {
 			})
 			.catch(function(err) {
 
-				res.status(500).json({ code: 9, msg: "Unknown error during get resource " + id + "." });
+				res.status(500).json({ code: 9, msg: "Internal error during get resource " + id + "." });
 			});
-	}
+	// }
 });
 
 // return list of resources
 router.get("/", function(req, res) {
 
-	var force = !!req.get("X-noCache");
+	// var force = !!req.get("X-noCache");
 	var query = resolver.resolveObject(req.query);
-	var cacheKey = JSON.stringify(query);
 
-	if(!force && bCache.keys.indexOf(cacheKey) > -1) {
+	// var cacheKey = JSON.stringify(query);
 
-		//get cache
-		res.status(200).json({ code: 0, results: bCache.get(cacheKey) });
-	}
-	else {
+	// if(!force && bCache.keys.indexOf(cacheKey) > -1) {
 
-		ResourceController.getResources(query.conditions, query.fields, query.options)
+	// 	//get cache
+	// 	res.status(200).json({ code: 0, results: bCache.get(cacheKey) });
+	// }
+	// else {
+
+		ResourceController.getResources(query.conditions, query.fields, query.options, req.isAdmin)
 			.then(function(resources) {
 
-				bCache.set(cacheKey, resources);
+				// bCache.set(cacheKey, resources);
 				res.status(200).json({ code: 0, results: resources });
 			})
 			.catch(function(err) {
 
-				res.status(500).json({ code: 9, msg: "Internal error" });
+				res.status(500).json({ code: 9, msg: "Internal error." });
 			});
-	}
+	// }
 });
+
+router.use(require("body-parser").json());
 
 router.post("/", function(req, res) {
 
@@ -137,12 +138,25 @@ router.post("/", function(req, res) {
 	ResourceController.addResource(body)
 		.then(function(results) {
 
-			res.status(200).json({ code: 0, numAffected: results[1], msg: "Successful creating." });			
+			// clear cache for changing
+			// bCache.clear();
+			res.status(200).json({ code: 0, msg: "Successful creating." });			
 		})
 		.catch(function(err) {
 
-			console.log("Resource insert error: ", err);
-			res.status(400).json({ code: 1, msg: "Invalid request." });
+			if(err.cause && err.cause.name == "MongoError") {
+
+				res.status(400).json({ code: 1, msg: "Invalid request.", errors: err.errmsg });
+			}
+			else if(err.name === "ValidationError") {
+
+				res.status(400).json({ code: 1, msg: "Invalid request.", errors: JSON.stringify(err.errors) });
+			}
+			else {
+
+				console.log("Resource insert error: ", err);
+				res.status(500).json({ code: 9, msg: "Unkown error." });	
+			}
 		});
 });
 
@@ -153,9 +167,16 @@ router.put("/:id", function(req, res) {
 	var id = req.params.id;
 	var options = body.options || {};
 	options.runValidators = true;
+	options.overwrite = true;
+	options.setDefaultsOnInsert = true;
 
 	// key of body.update can't start with '$'
-	if(body.update && Object.keys(body.update).some(function(key) { return !/^\$/.test(key); })) {
+	if(body.update && Object.keys(body.update).every(function(key) { return !/^\$/.test(key); })) {
+
+		// set default
+		body.update.joinDate || (body.update.joinDate = new Date());
+		body.update.enable || (body.update.enable = true);
+		body.update.isIntern || (body.update.isIntern = false);
 
 		ResourceController.updateResource({ resourceId: id }, body.update, options)
 			.then(function(results) {
@@ -163,7 +184,8 @@ router.put("/:id", function(req, res) {
 				var num = results[1] ? results[0] : 0;
 				if(num > 0) {
 
-					res.status(200).json({ code: 0, msg: "Successful updating." });	
+					// sCache.remove(id);
+					res.status(200).json({ code: 0, msg: "Successful updating." });
 				}
 				else {
 
@@ -172,8 +194,20 @@ router.put("/:id", function(req, res) {
 			})
 			.catch(function(err) {
 
-				console.log("Update error: ", err);
-				res.status(500).json({ code: 9, msg: "Unkown Error." });
+				if(err.cause && err.cause.name == "MongoError") {
+
+					res.status(400).json({ code: 1, msg: "Invalid request", errors: err.errmsg });
+				}
+				else if(err.name === "ValidationError") {
+
+					res.status(400).json({ code: 1, msg: "Invalid request", errors: JSON.stringify(err.errors) });
+				}
+				else {
+
+					console.log("Update error: ", err);
+					res.status(500).json({ code: 9, msg: "Unkown Error." });	
+				}
+				
 			});	
 	}
 	else {
@@ -186,7 +220,6 @@ router.put("/:id", function(req, res) {
 router.patch("/:id", function(req, res) {
 
 	var id = req.params.id;
-	var validKey = [ "$set", "$unset", "$push", "$pull" ];
 	var body = req.body;
 	var options = body.options || {};
 	options.runValidators = true;
@@ -194,13 +227,15 @@ router.patch("/:id", function(req, res) {
 	ResourceController.updateResourceById(id, body.update, options)
 		.then(function(newResource) {
 
+			// update cache
+			// sCache.set(id, newResource);
 			res.status(200).json({ code: 0, msg: "Successful updating", new: newResource });
 		})
 		.catch(function(err) {
 
 			if(err.cause && err.cause.name == "MongoError") {
 
-				res.status(400).json({ code: 1, msg: "Invalid request", errmsg: err.errmsg });
+				res.status(400).json({ code: 1, msg: "Invalid request", errors: err.errmsg });
 			}
 			else if(err.name === "ValidationError") {
 
@@ -209,7 +244,7 @@ router.patch("/:id", function(req, res) {
 			else {
 
 				console.log("Update error: ", err);
-				res.status(500).json({ code: 9, msg: "Unkown Error" });	
+				res.status(500).json({ code: 9, msg: "Unkown Error" });
 			}
 		});
 });
@@ -217,13 +252,20 @@ router.patch("/:id", function(req, res) {
 router.delete("/:id", function(req, res) {
 
 	var id = req.params.id;
-	var body = req.body;
 
-	ResourceController.removeResourceById(id, body.options)
+	ResourceController.removeResourceById(id)
 		.then(function(results) {
 
 			var num = results[1] ? results[0] : 0;
-			res.status(200).json({ code: 0, numAffected: num, msg: "Successful removing." });
+			if(num > 0) {
+
+				// sCache.remove(id);
+				res.status(200).json({ code: 0, numAffected: num, msg: "Successful removing." });	
+			}
+			else {
+
+				res.status(400).json({ code: 4, msg: "Update not affected." });
+			}
 		})
 		.catch(function(err) {
 
@@ -236,11 +278,20 @@ router.delete("/", function(req, res) {
 
 	var body = req.body;
 
-	ResourceController.removeResource(body.conditions, body.options)
+	ResourceController.removeResource(body.conditions, { multi: true })
 		.then(function(results) {
 
 			var num = results[1] ? results[0] : 0;
-			res.status(200).json({ code: 0, numAffected: num, msg: "Successful removing." });
+			if(num > 0) {
+
+				// clear cache for changing
+				// bCache.clear();
+				res.status(200).json({ code: 0, numAffected: num, msg: "Successful removing." });
+			}
+			else {
+
+				res.status(400).json({ code: 4, msg: "Update not affected." });
+			}
 		})
 		.catch(function(err) {
 
@@ -249,22 +300,27 @@ router.delete("/", function(req, res) {
 		});
 });
 
+router.use(function(req, res) {
+
+	res.redirect("/rest/resource/help");
+});
+
 module.exports = router;
 
-function prepareCache() {
+// function prepareCache() {
 
-	ResourceController.getEnableResources()
-		.then(function(results) {
+// 	ResourceController.getEnableResources()
+// 		.then(function(results) {
 
-			results.forEach(function(resource) {
+// 			results.forEach(function(resource) {
 
-				sCache.set(resource.resourceId, resource);
-			});
-		})
-		.catch(function(err) {
+// 				sCache.set(resource.resourceId, resource);
+// 			});
+// 		})
+// 		.catch(function(err) {
 
-			console.log("Prepare cache failed. ", err);
-		});	
+// 			console.log("Prepare cache failed. ", err);
+// 		});	
 
-	// ResourceController.... TODO
-}
+// 	// ResourceController.... TODO
+// }

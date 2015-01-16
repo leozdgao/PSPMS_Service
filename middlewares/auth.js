@@ -1,4 +1,3 @@
-var Promsie = require("bluebird");
 var AccountController = require("../controllers/accountController");
 var Cache = require("../helpers/scalablecache");
 var resolver = require("../helpers/resolve");

@@ -1,23 +1,20 @@
 var RestController = require("./restController");
-var resolver = require("../helpers/resolve");
 var resource = require("../models/model").Resource;
 
 var ResourceController = new RestController(resource);
 
-ResourceController.getEnableResources = function(conditions, fields, options) {
+ResourceController.getResourceById = function(id, fields, options, isAdmin) {
 
-	var conditions = conditions || {};
-	conditions.enable = true;
-
-	return this._query(conditions, fields, options);
-}
-
-ResourceController.getResourceById = function(id, fields, options) {
+	var conditions = { resourceId: id };
+	if(!isAdmin) conditions.enable = true;
 
 	return this._findOne({ resourceId: id, enable: true }, fields, options);
 }
 
-ResourceController.getResources = function(conditions, fields, options) {
+ResourceController.getResources = function(conditions, fields, options, isAdmin) {
+
+	var conditions = conditions || {};
+	if(!isAdmin) conditions.enable = true;
 
 	return this._query(conditions, fields, options);
 }

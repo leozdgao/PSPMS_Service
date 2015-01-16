@@ -101,7 +101,7 @@ exports.isDate = function isDate(d) {
 }
 
 exports.isLater = function isLater(d) {
-
+	
 	if(require("util").isDate(d)) {
 
 		return +d >= Date.now();
