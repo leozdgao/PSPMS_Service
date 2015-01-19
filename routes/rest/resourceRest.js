@@ -32,7 +32,8 @@ router.use(function(req, res, next) {
 			}
 			else {
 
-				res.status(401).json({ code: 2, msg: "UnAuthorized." });
+				next(resolver.handleError(null, 401, "UnAuthorized."));
+				// res.status(401).json({ code: 2, msg: "UnAuthorized." });
 			}	
 		}
 		else {
@@ -44,7 +45,8 @@ router.use(function(req, res, next) {
 			}
 			else {
 
-				res.status(401).json({ code: 2, msg: "UnAuthorized." });
+				next(resolver.handleError(null, 401, "UnAuthorized."));
+				// res.status(401).json({ code: 2, msg: "UnAuthorized." });
 			}
 		}
 		
@@ -59,7 +61,8 @@ router.param("id", function(req, res, next, id) {
 
 	if(!resolver.isNumber(id)) {
 
-		res.status(400).json({ code: 1, msg: "Invalid id." });
+		next(resolver.handleError(null, 400, "Invalid id."));
+		// res.status(400).json({ code: 1, msg: "Invalid id." });
 	}
 	else {
 
@@ -68,7 +71,7 @@ router.param("id", function(req, res, next, id) {
 });
 
 // get a single resource
-router.get("/:id", function(req, res) {
+router.get("/:id", function(req, res, next) {
 
 	var id = req.params.id;
 	// var force = !!req.get("X-noCache");
@@ -87,22 +90,24 @@ router.get("/:id", function(req, res) {
 				if(resolver.isDefined(resource)) {
 
 					// sCache.set(id, resource);
-					res.status(200).json({ code: 0, results: resource });
+					res.status(200).json(resource);
 				}
 				else {
 
-					res.status(404).json({ code: 3, msg: "Can't find resource " + id + "." });
+					next(resolver.handleError(null, 404, "Can't find resource " + id + "."));
+					// res.status(404).json({ code: 3, msg: "Can't find resource " + id + "." });
 				}
 			})
 			.catch(function(err) {
 
-				res.status(500).json({ code: 9, msg: "Internal error during get resource " + id + "." });
+				var error = resolver.handleError(err);
+				next(error);
 			});
 	// }
 });
 
 // return list of resources
-router.get("/", function(req, res) {
+router.get("/", function(req, res, next) {
 
 	// var force = !!req.get("X-noCache");
 	var query = resolver.resolveObject(req.query);
@@ -120,18 +125,19 @@ router.get("/", function(req, res) {
 			.then(function(resources) {
 
 				// bCache.set(cacheKey, resources);
-				res.status(200).json({ code: 0, results: resources });
+				res.status(200).json(resources);
 			})
 			.catch(function(err) {
 
-				res.status(500).json({ code: 9, msg: "Internal error." });
+				var error = resolver.handleError(err);
+				next(error);
 			});
 	// }
 });
 
 router.use(require("body-parser").json());
 
-router.post("/", function(req, res) {
+router.post("/", function(req, res, next) {
 
 	var body = req.body;
 
@@ -140,28 +146,17 @@ router.post("/", function(req, res) {
 
 			// clear cache for changing
 			// bCache.clear();
-			res.status(200).json({ code: 0, msg: "Successful creating." });			
+			res.status(200).end();			
 		})
 		.catch(function(err) {
 
-			if(err.cause && err.cause.name == "MongoError") {
-
-				res.status(400).json({ code: 1, msg: "Invalid request.", errors: err.errmsg });
-			}
-			else if(err.name === "ValidationError") {
-
-				res.status(400).json({ code: 1, msg: "Invalid request.", errors: JSON.stringify(err.errors) });
-			}
-			else {
-
-				console.log("Resource insert error: ", err);
-				res.status(500).json({ code: 9, msg: "Unkown error." });	
-			}
+			var error = resolver.handleError(err);
+			next(error);
 		});
 });
 
 // replace resource with new obj
-router.put("/:id", function(req, res) {
+router.put("/:id", function(req, res, next) {
 
 	var body = req.body;
 	var id = req.params.id;
@@ -171,7 +166,9 @@ router.put("/:id", function(req, res) {
 	options.setDefaultsOnInsert = true;
 
 	// key of body.update can't start with '$'
-	if(body.update && Object.keys(body.update).every(function(key) { return !/^\$/.test(key); })) {
+	if(body.update && Object.keys(body.update).every(function(key) { return !/^\$/.test(key); })
+		// check requried
+		&& resolver.isDefined(body.update.name) && resolver.isDefined(body.update.resourceId)) {
 
 		// set default
 		body.update.joinDate || (body.update.joinDate = new Date());
@@ -185,39 +182,29 @@ router.put("/:id", function(req, res) {
 				if(num > 0) {
 
 					// sCache.remove(id);
-					res.status(200).json({ code: 0, msg: "Successful updating." });
+					res.status(200).end();
 				}
 				else {
 
-					res.status(400).json({ code: 4, msg: "Update not affected." });
+					next(resolver.handleError(null, 400, "Update not affected."));
+					// res.status(400).json({ code: 4, msg: "Update not affected." });
 				}
 			})
 			.catch(function(err) {
 
-				if(err.cause && err.cause.name == "MongoError") {
-
-					res.status(400).json({ code: 1, msg: "Invalid request", errors: err.errmsg });
-				}
-				else if(err.name === "ValidationError") {
-
-					res.status(400).json({ code: 1, msg: "Invalid request", errors: JSON.stringify(err.errors) });
-				}
-				else {
-
-					console.log("Update error: ", err);
-					res.status(500).json({ code: 9, msg: "Unkown Error." });	
-				}
-				
+				var error = resolver.handleError(err);
+				next(error);
 			});	
 	}
 	else {
 
-		res.status(400).json({ code: 1, msg: "Invalid request." });
+		next(resolver.handleError(null, 400, "Invalid request"));
+		// res.status(400).json({ code: 1, msg: "Invalid request." });
 	}
 });
 
 // update part of resource
-router.patch("/:id", function(req, res) {
+router.patch("/:id", function(req, res, next) {
 
 	var id = req.params.id;
 	var body = req.body;
@@ -229,27 +216,16 @@ router.patch("/:id", function(req, res) {
 
 			// update cache
 			// sCache.set(id, newResource);
-			res.status(200).json({ code: 0, msg: "Successful updating", new: newResource });
+			res.status(200).json({ new: newResource });
 		})
 		.catch(function(err) {
 
-			if(err.cause && err.cause.name == "MongoError") {
-
-				res.status(400).json({ code: 1, msg: "Invalid request", errors: err.errmsg });
-			}
-			else if(err.name === "ValidationError") {
-
-				res.status(400).json({ code: 1, msg: "Invalid request", errors: JSON.stringify(err.errors) });
-			}
-			else {
-
-				console.log("Update error: ", err);
-				res.status(500).json({ code: 9, msg: "Unkown Error" });
-			}
+			var error = resolver.handleError(err);
+			next(error);
 		});
 });
 
-router.delete("/:id", function(req, res) {
+router.delete("/:id", function(req, res, next) {
 
 	var id = req.params.id;
 
@@ -260,21 +236,22 @@ router.delete("/:id", function(req, res) {
 			if(num > 0) {
 
 				// sCache.remove(id);
-				res.status(200).json({ code: 0, numAffected: num, msg: "Successful removing." });	
+				res.status(200).json({ numAffected: num });	
 			}
 			else {
 
-				res.status(400).json({ code: 4, msg: "Update not affected." });
+				next(resolver.handleError(null, 400, "Update not affected."));
+				// res.status(400).json({ code: 4, msg: "Update not affected." });
 			}
 		})
 		.catch(function(err) {
 
-			console.log("Resource remove error: ", err);
-			res.status(500).json({ code: 9, msg: "Unknown error." });
+			var error = resolver.handleError(err);
+			next(error);
 		});
 });
 
-router.delete("/", function(req, res) {
+router.delete("/", function(req, res, next) {
 
 	var body = req.body;
 
@@ -286,17 +263,18 @@ router.delete("/", function(req, res) {
 
 				// clear cache for changing
 				// bCache.clear();
-				res.status(200).json({ code: 0, numAffected: num, msg: "Successful removing." });
+				res.status(200).json({ numAffected: num });
 			}
 			else {
 
-				res.status(400).json({ code: 4, msg: "Update not affected." });
+				next(resolver.handleError(null, 400, "Update not affected."));
+				// res.status(400).json({ code: 4, msg: "Update not affected." });
 			}
 		})
 		.catch(function(err) {
 
-			console.log("Resource remove error: ", err);
-			res.status(500).json({ code: 9, msg: "Unknown error." });
+			var error = resolver.handleError(err);
+			next(error);
 		});
 });
 

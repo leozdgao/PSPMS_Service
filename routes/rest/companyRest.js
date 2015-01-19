@@ -17,7 +17,8 @@ router.use(function(req, res, next) {
 	// only leader can modify companies
 	if(req.needAuth && req.method !== "GET" && !req.isLeader) {
 
-		res.status(401).json({ code: 2, msg: "UnAuthorized." });
+		next(resolver.handleError(null, 401, "UnAuthorized."));
+		// res.status(401).json({ code: 2, msg: "" });
 	}
 	else next();
 });
@@ -26,7 +27,8 @@ router.param("id", function(req, res, next, id) {
 
 	if(!resolver.isNumber(id)) {
 
-		res.status(400).json({ code: 1, msg: "Invalid id." });
+		next(resolver.handleError(null, 400, "Invalid id."));
+		// res.status(400).json({ code: 1, msg: "Invalid id." });
 	}
 	else {
 
@@ -34,22 +36,24 @@ router.param("id", function(req, res, next, id) {
 	}
 });
 
-router.get("/", function(req, res) {
+router.get("/", function(req, res, next) {
 
 	var query = resolver.resolveObject(req.query);
 
 	CompanyController.getCompanies(query.conditions, query.fields, query.options, req.isAdmin)
 		.then(function(companies) {
 
-			res.status(200).json({ code: 0, results: companies });
+			res.status(200).json(companies);
 		})
 		.catch(function(err) {
 
-			res.status(500).json({ code: 9, msg: "Internal error." });
+			var err = resolver.handleError(err);
+			next(err);
+			// res.status(500).json({ code: 9, msg: "Internal error." });
 		});
 });
 
-router.get("/:id", function(req, res) {
+router.get("/:id", function(req, res, next) {
 
 	var query = resolver.resolveObject(req.query);
 	var id = req.params.id;
@@ -59,16 +63,18 @@ router.get("/:id", function(req, res) {
 
 			if(resolver.isDefined(company)) {
 
-				res.status(200).json({ code: 0, results: company });
+				res.status(200).json(company);
 			}
 			else {
 
-				res.status(404).json({ code: 3, msg: "Can't find company " + id + "." });
+				next(resolver.handleError(null, 404, "Can't find company " + id + "."));
+				// res.status(404).json({ code: 3, msg:  });
 			}
 		})
 		.catch(function(err) {
 
-			res.status(500).json({ code: 9, msg: "Internal error during get company " + id + "." });
+			var err = resolver.handleError(err);
+			next(err);
 		});
 });
 
@@ -90,20 +96,58 @@ router.get("/:id/projects", function(req, res) {
 					}
 				});
 
-				res.status(200).json({ code: 0, results: result });
+				res.status(200).json(result);
 			}
 			else {
 
-				res.status(404).json({ code: 3, msg: "Can't find company " + id + "." });
+				next(resolver.handleError(null, 404, "Can't find company " + id + "."));
+				// res.status(404).json({ code: 3, msg: "Can't find company " + id + "." });
 			}
 		})
-		.catch(function() {
+		.catch(function(err) {
 
-			res.status(500).json({ code: 9, msg: "Internal error." });
+			var err = resolver.handleError(err);
+			next(err);
+			// res.status(500).json({ code: 9, msg: "Internal error." });
 		});
 });
 
 router.use(require("body-parser").json());
+
+// insert a company
+router.post("/", function(req, res) {
+
+	var body = req.body;
+
+	CompanyController.addCompany(body)
+		.then(function() {
+
+			res.status(200).end();
+		})
+		.catch(function(err) {
+
+			var err = resolver.handleError(err);
+			next(err);
+		});
+});
+
+// push a project to a company
+router.post("/:id/projects", function(req, res) {
+
+	var body = req.body;
+	var id = req.params.id;
+
+	CompanyController.addProject(id, body)
+		.then(function(newCompany) {
+
+			res.status(200).json({ new: newCompany });
+		})
+		.catch(function(err) {
+
+			var err = resolver.handleError(err);
+			next(err);
+		});
+});
 
 router.use(function(req, res) {
 

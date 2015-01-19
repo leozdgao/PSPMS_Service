@@ -27,6 +27,11 @@ CompanyController.getProjectIds = function(id, options, isAdmin) {
 	return this._findOne(conditions, "projects", options);
 }
 
+CompanyController.addCompany = function(company) {
+
+	return this._insert(company);
+}
+
 CompanyController.addProject = function(id, project) {
 
 	return this._updateOne({ companyId: id }, { $push: { projects: project } });

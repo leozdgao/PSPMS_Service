@@ -5,4 +5,4 @@ module.exports = new Schema({
 	name: { type: String },
 	role: { type: Number },
 	expire: { type: Number }
-});
+}, { collection: "sessions", versionKey: false });

@@ -6,4 +6,4 @@ module.exports = new Schema({
 	salt: { type: String },
 	role: { type: Number },
 	resourceId: { type: Number }
-});
+},  { collection: "users", versionKey: false });

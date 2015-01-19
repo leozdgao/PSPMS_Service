@@ -11,7 +11,6 @@ Promise.promisifyAll(mongoose);
 var config = require('./config.json');
 
 app.use(require('morgan')('dev'));
-// app.use(express.static(path.join(__dirname, 'public')));
 
 // routes
 app.use('/user', require('./routes/user'));
@@ -21,11 +20,12 @@ var serveStatic = require('serve-static');
 var contentDesposition = require('content-disposition');
 app.use('/download', serveStatic(config.staticFolder, {
     setHeaders: function(res, path) {
-
+        //set header for downloading
         res.setHeader('Content-Disposition', contentDesposition(path));
     }
 }));
 
+// handle 404
 app.use(function(req, res, next) {
 
     var err = new Error("Not found.");
@@ -39,7 +39,6 @@ app.use(function(err, req, res, next) {
     console.log(err);
     res.status(err.status || 500).json(err);
 });
-
 
 var port = process.env.PORT || config.port || 4000;
 
