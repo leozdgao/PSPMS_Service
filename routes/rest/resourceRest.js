@@ -61,7 +61,7 @@ router.param("id", function(req, res, next, id) {
 
 	if(!resolver.isNumber(id)) {
 
-		next(resolver.handleError(null, 400, "Invalid id."));
+		next(resolver.handleError(null, 400, "Invalid resource id."));
 		// res.status(400).json({ code: 1, msg: "Invalid id." });
 	}
 	else {
@@ -175,7 +175,7 @@ router.put("/:id", function(req, res, next) {
 		body.update.enable || (body.update.enable = true);
 		body.update.isIntern || (body.update.isIntern = false);
 
-		ResourceController.updateResource({ resourceId: id }, body.update, options)
+		ResourceController.updateResource({ resourceId: id }, body.update, options, req.isAdmin)
 			.then(function(results) {
 
 				var num = results[1] ? results[0] : 0;
@@ -211,7 +211,7 @@ router.patch("/:id", function(req, res, next) {
 	var options = body.options || {};
 	options.runValidators = true;
 
-	ResourceController.updateResourceById(id, body.update, options)
+	ResourceController.updateResourceById(id, body.update, options, req.isAdmin)
 		.then(function(newResource) {
 
 			// update cache
@@ -229,14 +229,14 @@ router.delete("/:id", function(req, res, next) {
 
 	var id = req.params.id;
 
-	ResourceController.removeResourceById(id)
+	ResourceController.removeResourceById(id, {}, req.isAdmin)
 		.then(function(results) {
 
 			var num = results[1] ? results[0] : 0;
 			if(num > 0) {
 
 				// sCache.remove(id);
-				res.status(200).json({ numAffected: num });	
+				res.status(200).json({ numAffected: num });
 			}
 			else {
 
@@ -255,7 +255,7 @@ router.delete("/", function(req, res, next) {
 
 	var body = req.body;
 
-	ResourceController.removeResource(body.conditions, { multi: true })
+	ResourceController.removeResource(body.conditions, { multi: true }, req.isAdmin)
 		.then(function(results) {
 
 			var num = results[1] ? results[0] : 0;

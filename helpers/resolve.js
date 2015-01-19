@@ -109,6 +109,15 @@ exports.isLater = function isLater(d) {
 	else throw new Error("Type error");
 }
 
+exports.isValidClientId = function isValidClientId(id) {
+
+	if(typeof id == "string") {
+
+		return id.length == 10;	
+	}
+	else throw new Error("Type error");
+}
+
 exports.handleError = function handleError(err, status, msg) {
 
 	var error = new Error();

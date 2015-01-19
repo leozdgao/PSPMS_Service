@@ -27,7 +27,20 @@ router.param("id", function(req, res, next, id) {
 
 	if(!resolver.isNumber(id)) {
 
-		next(resolver.handleError(null, 400, "Invalid id."));
+		next(resolver.handleError(null, 400, "Invalid company id."));
+		// res.status(400).json({ code: 1, msg: "Invalid id." });
+	}
+	else {
+
+		next();
+	}
+});
+
+router.param("pid", function(req, res, next, pid) {
+
+	if(!resolver.isNumber(id)) {
+
+		next(resolver.handleError(null, 400, "Invalid project id."));
 		// res.status(400).json({ code: 1, msg: "Invalid id." });
 	}
 	else {
@@ -78,7 +91,7 @@ router.get("/:id", function(req, res, next) {
 		});
 });
 
-router.get("/:id/projects", function(req, res) {
+router.get("/:id/projects", function(req, res, next) {
 
 	var query = resolver.resolveObject(req.query);
 	var id = req.params.id;
@@ -115,7 +128,7 @@ router.get("/:id/projects", function(req, res) {
 router.use(require("body-parser").json());
 
 // insert a company
-router.post("/", function(req, res) {
+router.post("/", function(req, res, next) {
 
 	var body = req.body;
 
@@ -132,7 +145,7 @@ router.post("/", function(req, res) {
 });
 
 // push a project to a company
-router.post("/:id/projects", function(req, res) {
+router.post("/:id/projects", function(req, res, next) {
 
 	var body = req.body;
 	var id = req.params.id;
@@ -147,6 +160,42 @@ router.post("/:id/projects", function(req, res) {
 			var err = resolver.handleError(err);
 			next(err);
 		});
+});
+
+router.put("/:id", function(req, res, next) {
+
+
+});
+
+// replace projects array with a new array
+router.put("/:id/projects/", function(req, res, next) {
+
+
+});
+
+router.patch("/:id", function() {
+
+
+});
+
+router.patch("/:id/projects/:pid", function(req, res, next) {
+
+	// filter the key start with $
+});
+
+router.delete("/:id", function(req, res, next) {
+
+
+});
+
+router.delete("/:id/projects/:pid", function(req, res, next) {
+
+
+});
+
+router.delete("/", function(req, res, next) {
+
+
 });
 
 router.use(function(req, res) {

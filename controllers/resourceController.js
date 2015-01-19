@@ -24,24 +24,36 @@ ResourceController.addResource = function(resource) {
 	return this._insert(resource);
 }
 
-ResourceController.updateResourceById = function(id, update, options) {
+ResourceController.updateResourceById = function(id, update, options, isAdmin) {
 
-	return this._updateOne({ resourceId: id }, update, options);
+	var conditions = { resourceId: id };
+	if(!isAdmin) conditions.enable = true;
+
+	return this._updateOne(conditions, update, options);
 }
 
-ResourceController.updateResource = function(conditions, update, options) {
+ResourceController.updateResource = function(conditions, update, options, isAdmin) {
+
+	var conditions = conditions || {};
+	if(!isAdmin) conditions.enable = true;
 
 	return this._update(conditions, update, options);
 }
 
-ResourceController.removeResource = function(conditions, options) {
+ResourceController.removeResource = function(conditions, options, isAdmin) {
 
+	var conditions = conditions || {};
+	if(!isAdmin) conditions.enable = true;
+	
 	return this._update(conditions, { $set: { enable: false, leaveDate: new Date() } }, options);
 }
 
-ResourceController.removeResourceById = function(id, options) {
+ResourceController.removeResourceById = function(id, options, isAdmin) {
 
-	return this._update({ resourceId: id }, { $set: { enable: false, leaveDate: new Date() } }, options);
+	var conditions = { resourceId: id };
+	if(!isAdmin) conditions.enable = true;
+
+	return this._update(conditions, { $set: { enable: false, leaveDate: new Date() } }, options);
 }
 
 

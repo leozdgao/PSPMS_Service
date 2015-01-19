@@ -36,11 +36,12 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
 
-    console.log(err);
+    // console.log(err);
     res.status(err.status || 500).json(err);
 });
 
 var port = process.env.PORT || config.port || 4000;
+var connected = false;
 
 // set db connectiion config, timeout 5s
 var dbConfig = {

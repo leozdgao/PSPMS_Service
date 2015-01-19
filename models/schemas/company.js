@@ -9,7 +9,7 @@ var projectInCompanySchema = new Schema({
 var companySchema = new Schema({
 	companyId: { type: Number, required: true, unique: true },
 	name: { type: String, required: true },
-	clientId: { type: String, unique: true },
+	clientId: { type: String, required: true, unique: true },
 	serverFolder: { type: String },
 	perforceFolder: { type: String },
 	projects: { type: [projectInCompanySchema] },
@@ -17,6 +17,6 @@ var companySchema = new Schema({
 	obsolete: { type: Boolean, default: false }
 }, { collection: "companies", versionKey: false });
 
-
+companySchema.path("clientId").validate(resolver.isValidClientId, "Invalid client id");
 
 module.exports = companySchema;
