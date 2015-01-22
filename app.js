@@ -36,7 +36,7 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
 
-    // console.log(err);
+    console.log(err);
     res.status(err.status || 500).json(err);
 });
 
@@ -60,7 +60,8 @@ mongoose.connection.on("connected", function() {
 
 mongoose.connection.on("disconnected", function() {
 
-    // after a successful connecting, mongoose will reconnect automatically if connection disconnected.
+    // after a successful connecting, 
+    // mongoose will reconnect automatically if connection disconnected.
     if(!connected) {
 
         console.log("DBConnection closed. Try to reconnect.");

@@ -33,7 +33,6 @@ router.use(function(req, res, next) {
 			else {
 
 				next(resolver.handleError(null, 401, "UnAuthorized."));
-				// res.status(401).json({ code: 2, msg: "UnAuthorized." });
 			}	
 		}
 		else {
@@ -46,7 +45,6 @@ router.use(function(req, res, next) {
 			else {
 
 				next(resolver.handleError(null, 401, "UnAuthorized."));
-				// res.status(401).json({ code: 2, msg: "UnAuthorized." });
 			}
 		}
 		
@@ -62,7 +60,6 @@ router.param("id", function(req, res, next, id) {
 	if(!resolver.isNumber(id)) {
 
 		next(resolver.handleError(null, 400, "Invalid resource id."));
-		// res.status(400).json({ code: 1, msg: "Invalid id." });
 	}
 	else {
 
@@ -95,7 +92,6 @@ router.get("/:id", function(req, res, next) {
 				else {
 
 					next(resolver.handleError(null, 404, "Can't find resource " + id + "."));
-					// res.status(404).json({ code: 3, msg: "Can't find resource " + id + "." });
 				}
 			})
 			.catch(function(err) {
@@ -187,7 +183,6 @@ router.put("/:id", function(req, res, next) {
 				else {
 
 					next(resolver.handleError(null, 400, "Update not affected."));
-					// res.status(400).json({ code: 4, msg: "Update not affected." });
 				}
 			})
 			.catch(function(err) {
@@ -199,7 +194,6 @@ router.put("/:id", function(req, res, next) {
 	else {
 
 		next(resolver.handleError(null, 400, "Invalid request"));
-		// res.status(400).json({ code: 1, msg: "Invalid request." });
 	}
 });
 
@@ -241,7 +235,6 @@ router.delete("/:id", function(req, res, next) {
 			else {
 
 				next(resolver.handleError(null, 400, "Update not affected."));
-				// res.status(400).json({ code: 4, msg: "Update not affected." });
 			}
 		})
 		.catch(function(err) {
@@ -268,7 +261,6 @@ router.delete("/", function(req, res, next) {
 			else {
 
 				next(resolver.handleError(null, 400, "Update not affected."));
-				// res.status(400).json({ code: 4, msg: "Update not affected." });
 			}
 		})
 		.catch(function(err) {

@@ -2,6 +2,7 @@ var Promise = require("bluebird");
 var RestController = require("./restController");
 var company = require("../models/model").Company;
 
+var ProjectController = require("./projectController");
 var CompanyController = new RestController(company);
 
 CompanyController.getCompanies = function(conditions, fields, options, isAdmin) {
@@ -33,32 +34,71 @@ CompanyController.addCompany = function(company) {
 	return this._insert(company);
 }
 
-CompanyController.addProject = function(id, project) {
+CompanyController.addProject = function(id, pid) {
 
-	return this._updateOne({ companyId: id }, { $push: { projects: project } });
+	var self = this;
+	return new Promise(function(resolve, reject) {
+
+		var company;
+		self._findOne({ companyId: id, obsolete: { $ne: true } }) // filter the obsolete company
+			.then(function(result) {
+
+				if(result != null) {
+					// console.log("get company", result);
+					company = result;
+					//find project
+					return ProjectController.getProjectById(pid, "name");
+				}
+				else reject("404");
+			})
+			.then(function(project) {
+				// console.log("try get project", project);
+				if(project != null) {
+
+					company.projects.push({ projectId: pid, name: project.name });
+					resolve(company.saveAsync());
+				}
+				else reject("404");
+			})
+			.catch(function(err) {
+
+				reject(err);
+			});
+	});
 }
 
-CompanyController.updateCompanyById = function(id, update, options) {
+CompanyController.updateCompanyById = function(id, update, options, isAdmin) {
 
-	return this._updateOne({ companyId: id }, update, options);
+	var conditions = { companyId: id };
+	if(!isAdmin) conditions.obsolete = { $ne: true };
+
+	return this._updateOne(conditions, update, options);
 }
 
-CompanyController.updateCompany = function(conditions, update, options) {
+CompanyController.updateCompany = function(conditions, update, options, isAdmin) {
+
+	if(!isAdmin) conditions.obsolete = { $ne: true };
 
 	return this._update(conditions, update, options);
 }
 
-CompanyController.updateCompanyProjects = function(id, projects, options) {
+CompanyController.updateCompanyProjects = function(id, projects, options, isAdmin) {
+
+	var conditions = { companyId: id };
+	if(!isAdmin) conditions.obsolete = { $ne: true };
 
 	// replace projects array with a new array
-	return this._update({ companyId: id }, { $set: { projects: projects } }, options);
+	return this._update(conditions, { $set: { projects: projects } }, options);
 }
 
-CompanyController.updateProjectInCompany = function(cid, pid, update, options) {
+CompanyController.updateProjectInCompany = function(cid, pid, update, options, isAdmin) {
+
+	var conditions = { companyId: cid };
+	if(!isAdmin) conditions.obsolete = { $ne: true };
 
 	return new Promise(function(resolve, reject) {
 
-		this._findOne({ companyId: cid })
+		this._findOne(conditions)
 			.then(function(company) {
 
 				if(company != null) {
@@ -71,9 +111,7 @@ CompanyController.updateProjectInCompany = function(cid, pid, update, options) {
 
 					if(index > -1) {
 
-						// var updateObj = { $set: {} };
-						// var setKey = "projects." + index;
-						// updateObj.$set[setKey] = update;
+						// check validate
 						company.projects[index] = update;
 						resolve(company.saveAsync());
 					}
@@ -91,19 +129,30 @@ CompanyController.updateProjectInCompany = function(cid, pid, update, options) {
 	});
 }
 
-CompanyController.removeCompany = function(conditions, options) {
+CompanyController.removeCompany = function(conditions, options, isAdmin) {
+
+	var conditions = conditions || {};
+	if(!isAdmin) conditions.obsolete = { $ne: true };
+
+	var options = options || { multi: true };
 
 	return this._update(conditions, { $set: { obsolete: true } }, options);
 }
 
-CompanyController.removeCompanyById = function(id, options) {
+CompanyController.removeCompanyById = function(id, options, isAdmin) {
 
-	return this._update({ companyId: id }, { $set: { obsolete: true } }, options);
+	var conditions = { companyId: id };
+	if(!isAdmin) conditions.obsolete = { $ne: true };
+
+	return this._update(conditions, { $set: { obsolete: true } }, options);
 }
 
-CompanyController.removeProjectInCompany = function(cid, pid, options) {
+CompanyController.removeProjectInCompany = function(cid, pid, options, isAdmin) {
 
-	return this._update({ companyId: cid }, { $pull: { projects: { projectId: pid } } }, options);
+	var conditions = { companyId: cid };
+	if(!isAdmin) conditions.obsolete = { $ne: true };
+
+	return this._update(conditions, { $pull: { projects: { projectId: pid } } }, options);
 }
 
 module.exports = CompanyController;

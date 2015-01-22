@@ -106,7 +106,8 @@ exports.isLater = function isLater(d) {
 
 		return +d >= Date.now();
 	}
-	else throw new Error("Type error");
+	// else throw new Error("Type error");
+	else return false;
 }
 
 exports.isValidClientId = function isValidClientId(id) {
@@ -115,7 +116,8 @@ exports.isValidClientId = function isValidClientId(id) {
 
 		return id.length == 10;	
 	}
-	else throw new Error("Type error");
+	// else throw new Error("Type error");
+	else return false;
 }
 
 exports.handleError = function handleError(err, status, msg) {
@@ -128,23 +130,17 @@ exports.handleError = function handleError(err, status, msg) {
 		error.status = status || 400;
 		error.message = msg ||"Invalid request.";
 		error.errors = err.errmsg;
-		// res.status(400).json({ code: 1, msg: "Invalid request.", errors: err.errmsg });
 	}
 	else if(err.name === "ValidationError") {
 
 		error.status = status || 400;
 		error.message = msg ||"Invalid request.";
 		error.errors = JSON.stringify(err.errors);
-
-		// res.status(400).json({ code: 1, msg: "Invalid request.", errors: JSON.stringify(err.errors) });
 	}
 	else {
 
-		// console.log("Resource insert error: ", err);
 		error.status = status || 500;
 		error.message = msg || "Unkown error.";
-
-		// res.status(500).json({ code: 9, msg: "Unkown error." });	
 	}
 
 	return error;

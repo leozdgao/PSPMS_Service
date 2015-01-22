@@ -13,7 +13,6 @@ var companySchema = new Schema({
 	serverFolder: { type: String },
 	perforceFolder: { type: String },
 	projects: { type: [projectInCompanySchema] },
-	// projects: { type: [Number] },
 	obsolete: { type: Boolean, default: false }
 }, { collection: "companies", versionKey: false });
 
