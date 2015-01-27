@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var nodemon = require('gulp-nodemon');
 var jshint = require('gulp-jshint');
 
+// set default task
 gulp.task('default', ['develop']);
 
 gulp.task('lint', function() {
