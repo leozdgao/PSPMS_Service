@@ -32,7 +32,6 @@ exports.salthash = function (pwd, salt) {
             });
         }    
     });
-    
 };
 
 exports.md5 = function(content) {

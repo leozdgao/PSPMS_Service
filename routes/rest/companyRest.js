@@ -241,29 +241,29 @@ router.delete("/:id/projects/:pid", function(req, res, next) {
 		});
 });
 
-router.delete("/", function(req, res, next) {
+// router.delete("/", function(req, res, next) {
 
-	var body = req.body;
+// 	var body = req.body;
 
-	CompanyController.removeCompany(body.conditions, body.options, req.isAdmin)
-		.then(function(results) {
+// 	CompanyController.removeCompany(body.conditions, body.options, req.isAdmin)
+// 		.then(function(results) {
 
-			var num = results[1] ? results[0] : 0;
-			if(num > 0) {
+// 			var num = results[1] ? results[0] : 0;
+// 			if(num > 0) {
 
-				res.status(200).json({ numAffected: num });
-			}
-			else {
+// 				res.status(200).json({ numAffected: num });
+// 			}
+// 			else {
 
-				next(resolver.handleError(null, 400, "Update not affected."));
-			}
-		})
-		.catch(function(err) {
+// 				next(resolver.handleError(null, 400, "Update not affected."));
+// 			}
+// 		})
+// 		.catch(function(err) {
 
-			var err = resolver.handleError(err);
-			next(err);
-		});
-});
+// 			var err = resolver.handleError(err);
+// 			next(err);
+// 		});
+// });
 
 router.use(function(req, res) {
 

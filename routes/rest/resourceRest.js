@@ -244,31 +244,31 @@ router.delete("/:id", function(req, res, next) {
 		});
 });
 
-router.delete("/", function(req, res, next) {
+// router.delete("/", function(req, res, next) {
 
-	var body = req.body;
+// 	var body = req.body;
 
-	ResourceController.removeResource(body.conditions, { multi: true }, req.isAdmin)
-		.then(function(results) {
+// 	ResourceController.removeResource(body.conditions, { multi: true }, req.isAdmin)
+// 		.then(function(results) {
 
-			var num = results[1] ? results[0] : 0;
-			if(num > 0) {
+// 			var num = results[1] ? results[0] : 0;
+// 			if(num > 0) {
 
-				// clear cache for changing
-				// bCache.clear();
-				res.status(200).json({ numAffected: num });
-			}
-			else {
+// 				// clear cache for changing
+// 				// bCache.clear();
+// 				res.status(200).json({ numAffected: num });
+// 			}
+// 			else {
 
-				next(resolver.handleError(null, 400, "Update not affected."));
-			}
-		})
-		.catch(function(err) {
+// 				next(resolver.handleError(null, 400, "Update not affected."));
+// 			}
+// 		})
+// 		.catch(function(err) {
 
-			var error = resolver.handleError(err);
-			next(error);
-		});
-});
+// 			var error = resolver.handleError(err);
+// 			next(error);
+// 		});
+// });
 
 router.use(function(req, res) {
 
