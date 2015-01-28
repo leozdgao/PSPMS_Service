@@ -100,7 +100,7 @@ router.get("/:id/projects", function(req, res, next) {
 				var result = projects.map(function(project) {
 					return {
 						project: project,
-						href: "/rest/project/" + project.projectId
+						href: "/rest/project/" + (project.projectId || "?")
 					}
 				});
 
@@ -143,19 +143,24 @@ router.post("/:id/projects", function(req, res, next) {
 	var body = req.body;
 	var id = req.params.id;
 
-	// [TODO] test it
 	CompanyController.addProject(id, body.projectId)
 		.then(function() {
 
+			console.log(arguments);
 			// res.status(200).json({ new: newCompany });
 			res.status(200).end();
 		})
 		.catch(function(err) {
+
 			console.log(err);
 			var error;
 			if(err === "404") {
 
 				error = resolver.handleError(null, 404, "Company or project Not found.");
+			}
+			else if(err === 'dup') {
+
+				error = resolver.handleError(null, 400, "Project is already existed in this company.");
 			}
 			else {
 
@@ -169,24 +174,28 @@ router.post("/:id/projects", function(req, res, next) {
 router.put("/:id", function(req, res, next) {
 
 	// filter the key start with $
-	
+	var id = req.params.id;
+	var body = req.body;
+	var options = body.options || {};
+	options.runValidators = true;
+
+	CompanyController.updateCompanyById(id, body.update, options, req.isAdmin)
+		.then(function(newCompany) {
+
+			res.status(200).json({ new: newCompany });
+		})
+		.catch(function(err) {
+			console.log(err);
+			var error = resolver.handleError(err);
+			next(error);
+		});
 });
 
-// replace projects array with a new array
-router.put("/:id/projects/", function(req, res, next) {
+
+// router.patch("/:id", function() {
 
 
-});
-
-router.patch("/:id", function() {
-
-
-});
-
-router.patch("/:id/projects/:pid", function(req, res, next) {
-
-	
-});
+// });
 
 router.delete("/:id", function(req, res, next) {
 
@@ -223,7 +232,10 @@ router.delete("/:id/projects/:pid", function(req, res, next) {
 	CompanyController.removeProjectInCompany(id, pid, body, req.isAdmin)
 		.then(function(results) {
 
-			var num = results[1] ? results[0] : 0;
+			var comUpdate = results[0];
+
+			var num = comUpdate[1] ? comUpdate[0] : 0;
+			
 			if(num > 0) {
 
 				// sCache.remove(id);
@@ -236,8 +248,15 @@ router.delete("/:id/projects/:pid", function(req, res, next) {
 		})
 		.catch(function(err) {
 
-			var err = resolver.handleError(err);
-			next(err);
+			var error = err;
+
+			if(err == '404') {
+
+				error = resolver.handleError(null, 400, "Update not affected");
+			}
+			else error = resolver.handleError(err);
+
+			next(error);
 		});
 });
 

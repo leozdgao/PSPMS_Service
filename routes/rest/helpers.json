@@ -50,5 +50,30 @@
 			"method": "GET",
 			"href": "rest/company/:id/projects",
 			"auth": 0
+		}, {
+			"description": "Add a company.",
+			"method": "POST",
+			"href": "rest/company/",
+			"auth": 2
+		}, {
+			"description": "Add project for a company.",
+			"method": "POST",
+			"href": "rest/company/:id/projects",
+			"auth": 2
+		}, {
+			"description": "Update company info.",
+			"method": "PUT",
+			"href": "rest/company/:id/projects",
+			"auth": 2
+		}, {
+			"description": "Remove a company",
+			"method": "DELETE",
+			"href": "rest/company/:id",
+			"auth": 2
+		}, {
+			"description": "Remove project from a company",
+			"method": "DELETE",
+			"href": "rest/company/:id/projects/:pid",
+			"auth": 2
 		}]
 }

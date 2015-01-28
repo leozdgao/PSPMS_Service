@@ -1,5 +1,5 @@
 {
-	"port": 3000,
+	"port": 1399,
 	"dbConnectionTest": "mongodb://10.10.73.207:27017, 10.10.73.208:27017/PSPMS_Dev?replicaSet=pspms",
 	"dbConnection": "mongodb://localhost/PSPMS_Dev",
 	"staticFolder": "P:\\",
