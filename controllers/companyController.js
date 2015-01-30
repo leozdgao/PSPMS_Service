@@ -5,6 +5,8 @@ var company = require("../models/model").Company;
 var ProjectController = require("./projectController");
 var CompanyController = new RestController(company);
 
+var resolver = require("../helpers/resolve");
+
 CompanyController.getCompanies = function(conditions, fields, options, isAdmin) {
 
 	var conditions = conditions || {};
@@ -32,9 +34,43 @@ CompanyController.getProjectIds = function(id, options, isAdmin) {
 	// return this._findOne(conditions, "projects", options);
 }
 
+var last;
 CompanyController.addCompany = function(company) {
 
-	return this._insert(company);
+	var self = this;
+	return new Promise(function(resolve, reject) {
+
+		// auto increment companyId
+		if(resolver.isUndefined(company.companyId)) {
+
+			if(resolver.isUndefined(last)) {
+
+				self._query({}, "companyId", { "sort": { "companyId": -1 } })
+					.then(function(results) {
+						
+						var lastCompany = results[0] || {};
+						// set last companyId
+						last = parseInt(lastCompany.companyId);
+						if(!isNaN(last)) company.companyId = last + 1;
+
+						resolve(self._insert(company));
+					})
+					.catch(function(err) {
+
+						reject(err);
+					});	
+			}
+			else {
+
+				company.companyId = last + 1;
+				resolve(self._insert(company));
+			}
+		}
+		else {
+
+			resolve(self._insert(company));
+		}
+	});
 }
 
 CompanyController.addProject = function(id, pid) {
@@ -96,53 +132,6 @@ CompanyController.updateCompany = function(conditions, update, options, isAdmin)
 
 	return this._update(conditions, update, options);
 }
-
-// CompanyController.updateCompanyProjects = function(id, projects, options, isAdmin) {
-
-// 	var conditions = { companyId: id };
-// 	if(!isAdmin) conditions.obsolete = { $ne: true };
-
-// 	// replace projects array with a new array
-// 	return this._update(conditions, { $set: { projects: projects } }, options);
-// }
-
-// CompanyController.updateProjectInCompany = function(cid, pid, update, options, isAdmin) {
-
-// 	var conditions = { companyId: cid };
-// 	if(!isAdmin) conditions.obsolete = { $ne: true };
-
-// 	return new Promise(function(resolve, reject) {
-
-// 		this._findOne(conditions)
-// 			.then(function(company) {
-
-// 				if(company != null) {
-
-// 					var projects = company.projects || [];
-// 					var project = projects.filter(function(item) {
-// 						return item.projectId == pid;
-// 					})[0];
-// 					var index = projects.indexOf(project);
-
-// 					if(index > -1) {
-
-// 						// check validate
-// 						company.projects[index] = update;
-// 						resolve(company.saveAsync());
-// 					}
-// 					else reject("404");
-// 				}
-// 				else {
-
-// 					reject("404");
-// 				}
-// 			})
-// 			.catch(function(err) {
-
-// 				reject(err);
-// 			});
-// 	});
-// }
 
 CompanyController.removeCompany = function(conditions, options, isAdmin) {
 

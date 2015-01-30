@@ -2,6 +2,7 @@ var Schema = require("mongoose").Schema;
 var resolver = require("../../helpers/resolve");
 
 var resourceSchema = new Schema({
+	_id: { type: Schema.Types.ObjectId, auto: true },
 	resourceId: { type: Number, required: true, unique: true },
 	name: { type: String, required: true },
 	joinDate: { type: Date, default: new Date() },

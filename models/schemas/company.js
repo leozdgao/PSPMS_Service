@@ -1,13 +1,8 @@
 var Schema = require("mongoose").Schema;
 var resolver = require("../../helpers/resolve");
 
-// var projectInCompanySchema = new Schema({
-// 	projectId: { type: Number, required: true, ref: "Project" },
-// 	// name: { type: String, required: true }
-// }, { _id: false, versionKey: false });
-
 var companySchema = new Schema({
-	_id: { type: Schema.Types.ObjectId },
+	_id: { type: Schema.Types.ObjectId, auto: true },
 	companyId: { type: Number, required: true, unique: true },
 	name: { type: String, required: true },
 	clientId: { type: String, required: true, unique: true },

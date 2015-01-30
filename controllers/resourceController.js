@@ -1,7 +1,10 @@
+var Promise = require("bluebird");
 var RestController = require("./restController");
 var resource = require("../models/model").Resource;
 
 var ResourceController = new RestController(resource);
+
+var resolver = require("../helpers/resolve");
 
 ResourceController.getResourceById = function(id, fields, options, isAdmin) {
 
@@ -19,9 +22,44 @@ ResourceController.getResources = function(conditions, fields, options, isAdmin)
 	return this._query(conditions, fields, options);
 }
 
+// last resourceId
+var last;
 ResourceController.addResource = function(resource) {
 
-	return this._insert(resource);
+	var self = this;
+	return new Promise(function(resolve, reject) {
+
+		// auto increment companyId
+		if(resolver.isUndefined(resource.resourceId)) {
+
+			if(resolver.isUndefined(last)) {
+
+				self._query({}, "resourceId", { "sort": { "resourceId": -1 } })
+					.then(function(results) {
+						
+						var lastResource = results[0] || {};
+						// set last companyId
+						last = parseInt(lastResource.resourceId);
+						if(!isNaN(last)) resource.resourceId = last + 1;
+
+						resolve(self._insert(resource));
+					})
+					.catch(function(err) {
+
+						reject(err);
+					});	
+			}
+			else {
+
+				resource.resourceId = last + 1;
+				resolve(self._insert(resource));
+			}
+		}
+		else {
+
+			resolve(self._insert(resource));
+		}
+	});
 }
 
 ResourceController.updateResourceById = function(id, update, options, isAdmin) {

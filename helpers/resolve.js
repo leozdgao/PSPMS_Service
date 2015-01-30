@@ -140,7 +140,7 @@ exports.handleError = function handleError(err, status, msg) {
 	else {
 
 		error.status = status || 500;
-		error.message = msg || "Unkown error.";
+		error.message = msg || err.message || "Unkown error.";
 	}
 
 	return error;
