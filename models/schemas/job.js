@@ -16,7 +16,8 @@ resourceInJobSchema.path("role").validate(function(role) {
 }, "Available value for job role is 0 or 1.");
 
 var jobSchema = new Schema({
-	_id: { type: Schema.Types.ObjectId },
+	_id: { type: Schema.Types.ObjectId, auto: true },
+	projectId: { type: Schema.Types.ObjectId, ref: "Project" },
 	startDate: { type: Date, default: new Date() },
 	endDate: { type: Date, default: new Date() },
 	status: { type: Number, default: 0 },
@@ -31,7 +32,7 @@ var jobSchema = new Schema({
 			configchanges: { type: String, default: "none" }
 		}
 	},
-	workers: { type: [resourceInJobSchema], required:true },
+	workers: { type: [resourceInJobSchema] },
 }, { _id: false, versionKey: false });
 
 //

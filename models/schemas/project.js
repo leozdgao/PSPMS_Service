@@ -2,11 +2,11 @@ var Schema = require("mongoose").Schema;
 var resolver = require("../../helpers/resolve");
 
 var projectSchema = new Schema({
-	_id: { type: Schema.Types.ObjectId },
+	_id: { type: Schema.Types.ObjectId, auto: true },
 	projectId: { type: Number, required: true },
 	name: { type: String, required: true },
 	companyId: { type: Schema.Types.ObjectId, ref: "Company" },
-	assemblyName: { type: Number },
+	assemblyName: { type: String },
 	startDate: { type: Date, default: new Date() },
 	lastUpdateDate: { type: Date, default: new Date() },
 	status: { type: Number, default: 0 },

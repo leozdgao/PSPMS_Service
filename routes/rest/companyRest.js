@@ -126,9 +126,10 @@ router.post("/", function(req, res, next) {
 	var body = req.body;
 
 	CompanyController.addCompany(body)
-		.then(function() {
+		.then(function(results) {
 
-			res.status(200).end();
+			var result = results[0];
+			res.status(200).json(result || {});
 		})
 		.catch(function(err) {
 
@@ -146,8 +147,6 @@ router.post("/:id/projects", function(req, res, next) {
 	CompanyController.addProject(id, body.projectId)
 		.then(function() {
 
-			console.log(arguments);
-			// res.status(200).json({ new: newCompany });
 			res.status(200).end();
 		})
 		.catch(function(err) {

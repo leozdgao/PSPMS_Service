@@ -92,8 +92,7 @@ CompanyController.addProject = function(id, pid) {
 				else reject("404");
 			})
 			.then(function(project) {
-				// console.log("try get project", project);
-				console.log(project);
+				
 				if(project != null) {
 
 					if(company.projects.some(function(id){ return id == project._id.toString() })) {
