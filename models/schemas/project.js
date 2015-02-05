@@ -5,7 +5,7 @@ var projectSchema = new Schema({
 	_id: { type: Schema.Types.ObjectId, auto: true },
 	projectId: { type: Number, required: true },
 	name: { type: String, required: true },
-	companyId: { type: Schema.Types.ObjectId, ref: "Company" },
+	companyId: { type: Schema.Types.ObjectId, required: true, ref: "Company" },
 	assemblyName: { type: String },
 	startDate: { type: Date, default: new Date() },
 	lastUpdateDate: { type: Date, default: new Date() },

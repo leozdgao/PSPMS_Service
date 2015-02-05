@@ -1,23 +1,22 @@
 var Promise = require("bluebird");
 var RestController = require("./restController");
-var resource = require("../models/model").Resource;
+var ResourceModel = require("../models/model").Resource;
+var TrunkModel = require("../models/model").Trunk;
 
-var ResourceController = new RestController(resource);
+var ResourceController = new RestController(ResourceModel);
 
 var resolver = require("../helpers/resolve");
 
-ResourceController.getResourceById = function(id, fields, options, isAdmin) {
+ResourceController.getResourceById = function(id, fields, options) {
 
 	var conditions = { resourceId: id };
-	if(!isAdmin) conditions.enable = true;
 
 	return this._findOne({ resourceId: id, enable: true }, fields, options);
 }
 
-ResourceController.getResources = function(conditions, fields, options, isAdmin) {
+ResourceController.getResources = function(conditions, fields, options) {
 
 	var conditions = conditions || {};
-	if(!isAdmin) conditions.enable = true;
 
 	return this._query(conditions, fields, options);
 }
@@ -62,36 +61,33 @@ ResourceController.addResource = function(resource) {
 	});
 }
 
-ResourceController.updateResourceById = function(id, update, options, isAdmin) {
+ResourceController.updateResourceById = function(id, update, options) {
 
 	var conditions = { resourceId: id };
-	if(!isAdmin) conditions.enable = true;
 
 	return this._updateOne(conditions, update, options);
 }
 
-ResourceController.updateResource = function(conditions, update, options, isAdmin) {
-
-	var conditions = conditions || {};
-	if(!isAdmin) conditions.enable = true;
-
-	return this._update(conditions, update, options);
-}
-
-ResourceController.removeResource = function(conditions, options, isAdmin) {
-
-	var conditions = conditions || {};
-	if(!isAdmin) conditions.enable = true;
-	
-	return this._update(conditions, { $set: { enable: false, leaveDate: new Date() } }, options);
-}
-
 ResourceController.removeResourceById = function(id, options, isAdmin) {
 
-	var conditions = { resourceId: id };
-	if(!isAdmin) conditions.enable = true;
+	var conditions = { resourceId: id }, self = this;
 
-	return this._update(conditions, { $set: { enable: false, leaveDate: new Date() } }, options);
+	return this._findOne(conditions)
+		.then(function(resource) {
+
+			if(resource != null) {
+
+				var trunk = new TrunkModel();
+				trunk.type = 'resource';
+				trunk.instance = resource;
+
+				return trunk.saveAsync();
+			}
+		})
+		.then(function() {
+
+			return self._removeOne(conditions)
+		});
 }
 
 

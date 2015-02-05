@@ -15,24 +15,14 @@
 			"href": "rest/resource",
 			"auth": 2
 		}, {
-			"description": "Replace a resource with a new object.",
-			"method": "PUT",
-			"href": "rest/resource/:id",
-			"auth": 2
-		}, {
 			"description": "Update some fields of resource.",
-			"method": "PATCH",
+			"method": "PUT",
 			"href": "rest/resource/:id",
 			"auth": 2
 		}, {
 			"description": "Remove a single resource object.",
 			"method": "DELETE",
 			"href": "rest/resource/:id",
-			"auth": 2
-		}, {
-			"description": "Remove some resources according the conditions",
-			"method": "DELETE",
-			"href": "rest/resource",
 			"auth": 2
 		}],
 	"company": [{
@@ -56,24 +46,14 @@
 			"href": "rest/company/",
 			"auth": 2
 		}, {
-			"description": "Add project for a company.",
-			"method": "POST",
-			"href": "rest/company/:id/projects",
-			"auth": 2
-		}, {
 			"description": "Update company info.",
 			"method": "PUT",
-			"href": "rest/company/:id/projects",
+			"href": "rest/company/:id",
 			"auth": 2
 		}, {
 			"description": "Remove a company",
 			"method": "DELETE",
 			"href": "rest/company/:id",
-			"auth": 2
-		}, {
-			"description": "Remove project from a company",
-			"method": "DELETE",
-			"href": "rest/company/:id/projects/:pid",
 			"auth": 2
 		}]
 }

@@ -138,38 +138,6 @@ router.post("/", function(req, res, next) {
 		});
 });
 
-// push a project to a company
-router.post("/:id/projects", function(req, res, next) {
-
-	var body = req.body;
-	var id = req.params.id;
-
-	CompanyController.addProject(id, body.projectId)
-		.then(function() {
-
-			res.status(200).end();
-		})
-		.catch(function(err) {
-
-			console.log(err);
-			var error;
-			if(err === "404") {
-
-				error = resolver.handleError(null, 404, "Company or project Not found.");
-			}
-			else if(err === 'dup') {
-
-				error = resolver.handleError(null, 400, "Project is already existed in this company.");
-			}
-			else {
-
-				error = resolver.handleError(err);
-			}
-			
-			next(error);
-		});
-});
-
 router.put("/:id", function(req, res, next) {
 
 	// filter the key start with $
@@ -178,23 +146,25 @@ router.put("/:id", function(req, res, next) {
 	var options = body.options || {};
 	options.runValidators = true;
 
-	CompanyController.updateCompanyById(id, body.update, options, req.isAdmin)
-		.then(function(newCompany) {
+	if(resolver.isUndefined(body.update)) {
 
-			res.status(200).json({ new: newCompany });
-		})
-		.catch(function(err) {
-			console.log(err);
-			var error = resolver.handleError(err);
-			next(error);
-		});
+		var error = resolver.handleError(null, 400, "Bad request");
+		next(error);
+	}
+	else {
+
+		CompanyController.updateCompanyById(id, body.update, options, req.isAdmin)
+			.then(function(newCompany) {
+
+				res.status(200).json({ new: newCompany });
+			})
+			.catch(function(err) {
+				console.log(err);
+				var error = resolver.handleError(err);
+				next(error);
+			});
+	}
 });
-
-
-// router.patch("/:id", function() {
-
-
-// });
 
 router.delete("/:id", function(req, res, next) {
 
@@ -221,67 +191,6 @@ router.delete("/:id", function(req, res, next) {
 			next(err);
 		});
 });
-
-router.delete("/:id/projects/:pid", function(req, res, next) {
-
-	var id = req.params.id;
-	var pid = req.params.pid;
-	var body = req.body;
-
-	CompanyController.removeProjectInCompany(id, pid, body, req.isAdmin)
-		.then(function(results) {
-
-			var comUpdate = results[0];
-
-			var num = comUpdate[1] ? comUpdate[0] : 0;
-			
-			if(num > 0) {
-
-				// sCache.remove(id);
-				res.status(200).json({ numAffected: num });
-			}
-			else {
-
-				next(resolver.handleError(null, 400, "Update not affected."));
-			}
-		})
-		.catch(function(err) {
-
-			var error = err;
-
-			if(err == '404') {
-
-				error = resolver.handleError(null, 400, "Update not affected");
-			}
-			else error = resolver.handleError(err);
-
-			next(error);
-		});
-});
-
-// router.delete("/", function(req, res, next) {
-
-// 	var body = req.body;
-
-// 	CompanyController.removeCompany(body.conditions, body.options, req.isAdmin)
-// 		.then(function(results) {
-
-// 			var num = results[1] ? results[0] : 0;
-// 			if(num > 0) {
-
-// 				res.status(200).json({ numAffected: num });
-// 			}
-// 			else {
-
-// 				next(resolver.handleError(null, 400, "Update not affected."));
-// 			}
-// 		})
-// 		.catch(function(err) {
-
-// 			var err = resolver.handleError(err);
-// 			next(err);
-// 		});
-// });
 
 router.use(function(req, res) {
 

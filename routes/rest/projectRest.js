@@ -91,6 +91,11 @@ router.get("/:id/company", function (req, res, next) {
 
 				next(resolver.handleError(null, 404, "Can't find project " + id + "."));
 			}
+		})
+		.catch(function(err) {
+
+			var err = resolver.handleError(err);
+			next(err);
 		});
 });
 
@@ -104,7 +109,6 @@ router.get("/:id/jobs", function (req, res, next) {
 		.then(function(project) {
 
 			if(resolver.isDefined(project)) {
-				console.log(project);
 
 				res.status(200).json(project.jobs || []);
 			}
@@ -113,21 +117,6 @@ router.get("/:id/jobs", function (req, res, next) {
 				next(resolver.handleError(null, 404, "Can't find project " + id + "."));
 			}
 		})
-});
-
-router.use(require("body-parser").json());
-
-// add a project  //TODO
-router.post("/", function (req, res, next) {
-
-	var body = req.body;
-
-	ProjectController.addProject(body)
-		.then(function(results) {
-
-			var result = results[0];
-			res.status(200).json(result || {});
-		})
 		.catch(function(err) {
 
 			var err = resolver.handleError(err);
@@ -135,27 +124,22 @@ router.post("/", function (req, res, next) {
 		});
 });
 
-// add a job for a project
-router.post("/:id/jobs", function (req, res, next) {
+router.use(require("body-parser").json());
 
-	var id = req.params.id;
+// add a project
+router.post("/", function (req, res, next) {
+
 	var body = req.body;
 
-	ProjectController.addJobForProject(id, body, req.isAdmin)
-		.then(function(job) {
+	ProjectController.addProject(body)
+		.then(function(result) {
 
-			res.status(200).end();
+			res.status(200).json({ new: result });
 		})
 		.catch(function(err) {
 
-			var error = err;
-
-			if(err === '404') {
-
-				error = resolver.handleError(null, 404, "Project not found.");
-			}
-			
-			next(resolver.handleError(error));
+			var err = resolver.handleError(err);
+			next(err);
 		});
 });
 
@@ -179,7 +163,7 @@ router.put("/:id", function (req, res, next) {
 
 				if(newProject != null) {
 
-					res.status(200).json({ new: newProject});	
+					res.status(200).json({ new: newProject});
 				}
 				else {
 
@@ -195,43 +179,42 @@ router.put("/:id", function (req, res, next) {
 	}
 });
 
-// update company of the project
+// update company of project //TODO
 router.put("/:id/company", function (req, res, next) {
 
 	var id = req.params.id;
 	var body = req.body;
 
 	ProjectController.changeCompany(id, body.companyId, req.isAdmin)
-		.then(function(newProject) {
+		.then(function(results) {
 
-			console.log(arguments);
-			if(newProject != null) {
-
-				res.status(200).json({ new: newProject});	
-			}
-			else {
-
-				var error = resolver.handleError(null, 404, "Project not found.");
-				next(error);
-			}			
+			res.status(200).json({ new: results });
 		})
 		.catch(function(err) {
 
 			var error = resolver.handleError(err);
+
 			next(error);
-		})
+		});
 });
 
 // remove a project
 router.delete("/:id", function (req, res, next) {
 
+	var id = req.params.id;
+	var body = req.body;
 
-});
+	ProjectController.removeProjectById(id, body, req.isAdmin)
+		.then(function() {
 
-// remove jobs of a project
-router.delete("/:id/jobs", function (req, res, next) {
+			res.status(200).end();
+		})
+		.catch(function(err) {
 
-
+			console.log(err);
+			var error = resolver.handleError(err);
+			next(error);
+		});
 });
 
 router.use(function(req, res) {

@@ -1,11 +1,12 @@
 var Promise = require("bluebird");
-var RestController = require("./restController");
-var project = require("../models/model").Project;
-var job = require("../models/model").Job;
 
-var CompanyController = require("./companyController");
-// var JobController = require("./jobController");
-var ProjectController = new RestController(project);
+var ProjectModel = require("../models/model").Project;
+var CompanyModel = require("../models/model").Company;
+var JobModel = require("../models/model").Job;
+var TrunkModel = require("../models/model").Trunk;
+
+var RestController = require("./restController");
+var ProjectController = new RestController(ProjectModel);
 
 var resolver = require("../helpers/resolve");
 
@@ -44,10 +45,11 @@ ProjectController.getJobsOfProject = function(id, fields, isAdmin) {
 var last; // TODO add project to company
 ProjectController.addProject = function(project) {
 
-	var self = this;
+	var self = this, newProject;
+
 	return new Promise(function(resolve, reject) {
 
-		// auto increment companyId
+		// auto increment projectId
 		if(resolver.isUndefined(project.projectId)) {
 
 			if(resolver.isUndefined(last)) {
@@ -77,6 +79,16 @@ ProjectController.addProject = function(project) {
 
 			resolve(self._insert(project));
 		}
+	})
+	// add to company
+	.then(function(results) {
+
+		newProject = results[0];
+		return CompanyModel.findOneAndUpdateAsync({ _id: newProject.companyId }, { '$push': { projects: newProject._id } });
+	})
+	.then(function() {
+
+		return newProject;
 	});
 }
 
@@ -96,7 +108,7 @@ ProjectController.addJobForProject = function(id, body, isAdmin) {
 				if(project != null) {
 
 					body.projectId = project._id;
-					var newJob = new job(body);
+					var newJob = new JobModel(body);
 					return newJob.saveAsync();
 				}
 				else reject('404');
@@ -133,55 +145,52 @@ ProjectController.updateProjectById = function(id, update, options, isAdmin) {
 
 ProjectController.changeCompany = function(id, cid, isAdmin) {
 
-	var conditions = { projectId: id };
+	var conditions = { projectId: id }, self = this;
 	if(!isAdmin) conditions.obsolete = { $ne: true };
 
-	var self = this;
-	return new Promise(function(resolve, reject) {
+	return self._findOne(conditions)
+		.then(function(project) {
 
-		var tProject, tCompany;
-		self._findOne(conditions)
-			.then(function(project) {
+			if(project != null && cid != project.companyId) {
 
-				if(project != null) {
-
-					tProject = project;
-					return CompanyController.getCompanyById(cid, null, null, isAdmin);
-				}
-				else {
-
-					reject('404');
-				}
-			})
-			.then(function(company) {
-
-				if(company != null) {
-
-					tCompany = company;
-
-					return Promise.all([
-						self._updateOne(conditions, { companyId: tCompany._id }),
-						CompanyController.updateCompanyById(cid, { '$push': { projects: tProject._id } }, null, isAdmin),
-						CompanyController.updateCompany({ _id: tProject.companyId }, { '$pull': { projects: tProject._id } }, null, isAdmin)
-					]); 
-				}
-				else {
-
-					reject('404');
-				}
-			})
-	});
-	
+				return Promise.all([
+					self._updateOne(conditions, { companyId: cid }),
+					CompanyModel.findOneAndUpdateAsync({ _id: cid }, { '$addToSet': { projects: project._id } }),
+					CompanyModel.findOneAndUpdateAsync({ _id: project.companyId }, { '$pull': { projects: project._id } })
+				]);
+			}
+		});
 }
 
-ProjectController.removeProject = function(conditions, options, isAdmin) {
+ProjectController.removeProjectById = function(id, options, isAdmin) {
 
-	var conditions = conditions || {};
-	if(!isAdmin) conditions.obsolete = { $ne: true };
+	var conditions = { projectId: id }, self = this, oProject;
 
-	var options = options || { multi: true };
+	return self._findOne(conditions)
+		.then(function(project) {
 
-	return this._update(conditions, { $set: { obsolete: true } }, options);
+			if(project != null) {
+
+				oProject = project;
+				var trunk = new TrunkModel();
+				trunk.type = 'project';
+				trunk.instance = project;
+
+				return trunk.saveAsync();
+			}
+		})
+		.then(function() {
+
+			return self._removeOne(conditions);
+		})
+		// remove project in company
+		.then(function() {
+
+			if(oProject) {
+
+				return CompanyModel.findOneAndUpdateAsync({ _id: oProject.companyId }, { '$pull': { projects: oProject._id } });	
+			}
+		});
 }
 
 module.exports = ProjectController;
