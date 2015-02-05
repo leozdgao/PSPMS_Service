@@ -2,7 +2,6 @@ var Promise = require("bluebird");
 
 var ProjectModel = require("../models/model").Project;
 var CompanyModel = require("../models/model").Company;
-var JobModel = require("../models/model").Job;
 var TrunkModel = require("../models/model").Trunk;
 
 var RestController = require("./restController");
@@ -10,39 +9,33 @@ var ProjectController = new RestController(ProjectModel);
 
 var resolver = require("../helpers/resolve");
 
-ProjectController.getProjects = function(conditions, fields, options, isAdmin) {
-
-	var conditions = conditions || {};
-	if(!isAdmin) conditions.obsolete = { $ne: true };
+ProjectController.getProjects = function(conditions, fields, options) {
 
 	return this._query(conditions, fields, options);
 }
 
-ProjectController.getProjectById = function(id, fields, options, isAdmin) {
+ProjectController.getProjectById = function(id, fields, options) {
 
 	var conditions = { projectId: id };
-	if(!isAdmin) conditions.obsolete = { $ne: true };
 
 	return this._findOne(conditions, fields, options);
 }
 
-ProjectController.getCompanyOfProject = function(id, fields, isAdmin) {
+ProjectController.getCompanyOfProject = function(id, fields) {
 
 	var conditions = { projectId: id };
-	if(!isAdmin) conditions.obsolete = { $ne: true };
 
 	return this.model.findOne(conditions).populate('companyId', fields).execAsync();
 }
 
-ProjectController.getJobsOfProject = function(id, fields, isAdmin) {
+ProjectController.getJobsOfProject = function(id, fields) {
 
 	var conditions = { projectId: id };
-	if(!isAdmin) conditions.obsolete = { $ne: true };
 
 	return this.model.findOne(conditions).populate('jobs', fields).execAsync();
 }
 
-var last; // TODO add project to company
+var last;
 ProjectController.addProject = function(project) {
 
 	var self = this, newProject;
@@ -92,61 +85,16 @@ ProjectController.addProject = function(project) {
 	});
 }
 
-ProjectController.addJobForProject = function(id, body, isAdmin) {
+ProjectController.updateProjectById = function(id, update, options) {
 
 	var conditions = { projectId: id };
-	if(!isAdmin) conditions.obsolete = { $ne: true };
-
-	var self = this;
-	var jobResult;
-
-	return new Promise(function(resolve, reject) {
-
-		self._findOne(conditions)
-			.then(function(project) {
-
-				if(project != null) {
-
-					body.projectId = project._id;
-					var newJob = new JobModel(body);
-					return newJob.saveAsync();
-				}
-				else reject('404');
-			})
-			.then(function(results) {
-
-				if(results[0]) {
-
-					jobResult = results[0]; console.log(jobResult._id);
-					return self._updateOne(conditions, { '$push': { jobs : jobResult._id } });
-				}
-				else {
-					reject(new Error('Update not effect'));
-				}
-			})
-			.then(function() {
-
-				resolve(jobResult);
-			})
-			.catch(function(err) {
-
-				reject(err);
-			});	
-	});
-}
-
-ProjectController.updateProjectById = function(id, update, options, isAdmin) {
-
-	var conditions = { projectId: id };
-	if(!isAdmin) conditions.obsolete = { $ne: true };
 
 	return this._updateOne(conditions, update, options);
 }
 
-ProjectController.changeCompany = function(id, cid, isAdmin) {
+ProjectController.changeCompany = function(id, cid) {
 
 	var conditions = { projectId: id }, self = this;
-	if(!isAdmin) conditions.obsolete = { $ne: true };
 
 	return self._findOne(conditions)
 		.then(function(project) {
@@ -162,7 +110,7 @@ ProjectController.changeCompany = function(id, cid, isAdmin) {
 		});
 }
 
-ProjectController.removeProjectById = function(id, options, isAdmin) {
+ProjectController.removeProjectById = function(id, options) {
 
 	var conditions = { projectId: id }, self = this, oProject;
 
