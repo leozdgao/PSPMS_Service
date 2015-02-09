@@ -103,10 +103,11 @@ router.post("/signup", function(req, res) {
 	var body = req.body;
 	var uid = body.uid;
 	var pwd = body.pwd;
+	var resourceId = body.resourceId;
 
 	if(uid && pwd) {
 
-		AccountController.newUser(uid, pwd)
+		AccountController.newUser(resourceId, uid, pwd)
 			.then(function(user) {
 
 				res.status(200).json(user);
@@ -117,7 +118,7 @@ router.post("/signup", function(req, res) {
 
 					res.status(400).json({ code: 4, msg: "User already exist." });
 				}
-				else {
+				else {console.log(err);
 
 					res.status(400).json({ code: 9, msg: "Error occurred while creating user." });	
 				}

@@ -8,11 +8,14 @@ var resourceSchema = new Schema({
 	joinDate: { type: Date, default: new Date() },
 	leaveDate: { type: Date },
 	email: { type: String },
-	enable: { type: Boolean, default: true },
-	isIntern: { type: Boolean, default: false }
+	isIntern: { type: Boolean, default: false },
+	account: {
+		uid: { type: String },
+		pwd: { type: String },
+		salt: { type: String },
+		role: { type: Number },
+		lastLoginDate: { type: Date }
+	}
 }, { collection: "resources", versionKey: false });
-
-resourceSchema.path("leaveDate").validate(resolver.isLater, "Invalid leave date.");
-resourceSchema.path("email").validate(resolver.isEmail, "Invalid email.");
 
 module.exports = resourceSchema;

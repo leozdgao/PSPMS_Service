@@ -11,12 +11,10 @@ ResourceController.getResourceById = function(id, fields, options) {
 
 	var conditions = { resourceId: id };
 
-	return this._findOne({ resourceId: id, enable: true }, fields, options);
+	return this._findOne(conditions, fields, options);
 }
 
 ResourceController.getResources = function(conditions, fields, options) {
-
-	var conditions = conditions || {};
 
 	return this._query(conditions, fields, options);
 }
@@ -68,7 +66,7 @@ ResourceController.updateResourceById = function(id, update, options) {
 	return this._updateOne(conditions, update, options);
 }
 
-ResourceController.removeResourceById = function(id, options, isAdmin) {
+ResourceController.removeResourceById = function(id, options) {
 
 	var conditions = { resourceId: id }, self = this;
 

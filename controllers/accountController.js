@@ -5,7 +5,7 @@ var dataHash = require("../helpers/hash");
 var hash = dataHash.salthash;
 var md5 = dataHash.md5;
 
-var User = model.User;
+var Resource = model.Resource;
 var Session = model.Session;
 
 exports.checkPassword = function checkPassword(uid, pwd) {
@@ -14,24 +14,24 @@ exports.checkPassword = function checkPassword(uid, pwd) {
 
 		var user;
 
-		User.findOneAsync({name: uid})
+		Resource.findOneAsync({'account.uid': uid})
 			.then(function(u) {
 
 				if(u != null) {
 					
 					user = u;
 
-					return hash(pwd, user.salt);
+					return hash(pwd, user.account.salt);
 				}
 				// can't find user
 				else {
 
 					reject("Can't find user.");	
-				} 
+				}
 			})
 			.then(function(code) {
 
-				if(user.password === code) {
+				if(user.account.pwd === code) {
 
 					resolve(user);
 				}
@@ -52,7 +52,7 @@ exports.checkUnique = function checkUnique(uid) {
 
 	return new Promise(function(resolve, reject) {
 
-		User.findOneAsync({name: uid})
+		Resource.findOneAsync({'account.uid': uid})
 			.then(function(user) {
 
 				if(user == null) resolve();
@@ -65,7 +65,7 @@ exports.checkUnique = function checkUnique(uid) {
 	});
 }
 
-exports.newUser = function newUser(uid, pwd) {
+exports.newUser = function newUser(resourceId, uid, pwd, role) {
 
 	return new Promise(function(resolve, reject) {
 
@@ -77,12 +77,27 @@ exports.newUser = function newUser(uid, pwd) {
 			})
 			.then(function(results) {
 
-				var newUser = new User();
-				newUser.name = uid;
-				newUser.salt = results[0];
-				newUser.password = results[1];
+				return Resource.findOneAsync({ _id: resourceId })
+					.then(function(resource) {
 
-				return newUser.saveAsync();
+						if(resource != null) {
+
+							resource.account = resource.account || {};
+							resource.account.uid = uid;
+							resource.account.salt = results[0];
+							resource.account.pwd = results[1];
+							resource.account.role = role || 1;
+
+							return resource.saveAsync();
+						}
+						else {
+							reject(404);
+						}
+					})
+					.catch(function(err) {
+
+						reject(err);
+					});
 			})
 			.then(function(results) {
 
@@ -104,18 +119,17 @@ exports.newUser = function newUser(uid, pwd) {
 	});
 }
 
-exports.generateSession = function generateSession(user) {
+exports.generateSession = function generateSession(resource) {
 
-	var secret = new Date().toGMTString() + "SECRET" + user.name;
+	var secret = new Date().toGMTString() + "SECRET" + resource.account.uid;
 
 	//remove exist session
-	return Session.removeAsync({ name: user.name })
+	return Session.removeAsync({ resource: resource._id })
 				.then(function() {
 
 					var session = new Session();
-					session.uid = user._id;
-					session.name = user.name;
-					session.role = user.role;
+					session.resource = resource._id;
+					session.role = resource.account.role;
 					session.token = md5(secret);
 					session.expire = Date.now() + 3600000; // session expired after an hour
 
@@ -126,7 +140,7 @@ exports.generateSession = function generateSession(user) {
 exports.getSession = function getSession(token) {
 
 	return Session.findOneAsync({ token: token });
-}
+};
 
 exports.removeSession = function removeSession(token) {
 
@@ -135,5 +149,5 @@ exports.removeSession = function removeSession(token) {
 
 exports.updateLoginDate = function updateLoginDate(uid) {
 
-	return User.updateAsync({ _id: uid }, { $currentDate: { lastLoginDate: true } }); 
-}
+	return Resource.updateAsync({ _id: uid }, { $currentDate: { 'account.lastLoginDate': true } }); 
+};

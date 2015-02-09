@@ -193,7 +193,6 @@ router.put("/:id/company", function (req, res, next) {
 		.catch(function(err) {
 
 			var error = resolver.handleError(err);
-
 			next(error);
 		});
 });

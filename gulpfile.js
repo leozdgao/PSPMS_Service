@@ -12,7 +12,7 @@ gulp.task('lint', function() {
 
 gulp.task('develop', function() {
 	nodemon({ script: 'app.js', ext: 'js' })
-		.on('change', ['lint'])
+		// .on('change', ['lint'])
 		.on('restart', function() {
 			console.log('restarted!');
 		});

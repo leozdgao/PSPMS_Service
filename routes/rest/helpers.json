@@ -55,5 +55,72 @@
 			"method": "DELETE",
 			"href": "rest/company/:id",
 			"auth": 2
+		}],
+	"project": [{
+			"description": "Get a single project object.",
+			"method": "GET",
+			"href": "rest/project/:id",
+			"auth": 0
+		}, {
+			"description": "Get an array of project objects.",
+			"method": "GET",
+			"href": "rest/project/?param=",
+			"auth": 0
+		}, {
+			"description": "Get company of the project object.",
+			"method": "GET",
+			"href": "rest/project/:id/company",
+			"auth": 0
+		}, {
+			"description": "Get job list of the project object.",
+			"method": "GET",
+			"href": "rest/project/:id/jobs",
+			"auth": 0
+		}, {
+			"description": "Insert a new project",
+			"method": "POST",
+			"href": "rest/project",
+			"auth": 2
+		}, {
+			"description": "Update some fields of project.",
+			"method": "PUT",
+			"href": "rest/project/:id",
+			"auth": 2
+		}, {
+			"description": "Update the company of the project.",
+			"method": "PUT",
+			"href": "rest/project/:id/company",
+			"auth": 2
+		}, {
+			"description": "Remove a single project object.",
+			"method": "DELETE",
+			"href": "rest/project/:id",
+			"auth": 2
+		}],
+	"job": [{
+			"description": "Get a single job object.",
+			"method": "GET",
+			"href": "rest/job/:id",
+			"auth": 1
+		}, {
+			"description": "Get an array of job objects.",
+			"method": "GET",
+			"href": "rest/job/?param=",
+			"auth": 1
+		}, {
+			"description": "Insert a new job",
+			"method": "POST",
+			"href": "rest/job",
+			"auth": 2
+		}, {
+			"description": "Update some fields of job.",
+			"method": "PUT",
+			"href": "rest/job/:id",
+			"auth": 2
+		}, {
+			"description": "Remove a single job object.",
+			"method": "DELETE",
+			"href": "rest/job/:id",
+			"auth": 2
 		}]
 }
