@@ -34,9 +34,11 @@ router.post("/login", function(req, res) {
 
 				var session = results[0][0];
 				console.log('After generate Session');
+				session.populate('resource', '-account', function(err, session) {
 
-				res.cookie("token", session.token, { maxAge: 3600000 });
-				res.status(200).json({ code: 0, msg: "Login successfully.", session: session });
+					res.cookie("token", session.token, { maxAge: 3600000 });
+					res.status(200).json({ code: 0, msg: "Login successfully.", session: session });
+				});
 			})
 			.catch(function(err) {
 				console.log(err);
@@ -51,7 +53,7 @@ router.post("/login", function(req, res) {
 });
 
 router.get("/logout", function(req, res) {
-	var token = req.param("token");
+	var token = req.query.token;
 
 	if(typeof token != "undefined") {
 
@@ -75,7 +77,7 @@ router.get("/logout", function(req, res) {
 // - role
 
 router.get("/relog", function(req, res) {
-	var token = req.param("token");
+	var token = req.query.token;
 
 	// query
 
@@ -88,7 +90,10 @@ router.get("/relog", function(req, res) {
 			}
 			else {
 
-				res.status(200).json(session);	
+				session.populate('resource', '-account', function(err, session) {
+
+					res.status(200).json(session);	
+				});
 			}
 			
 		})
