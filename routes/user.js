@@ -135,4 +135,12 @@ router.post("/signup", function(req, res) {
 	}
 });
 
+// router.post('/resetaccount', function(req, res) {
+
+// 	var body = req.body;
+// 	var uid = body.uid;
+// 	var pwd = body.pwd;
+// 	var resourceId = body.resourceId;
+// });
+
 module.exports = router;

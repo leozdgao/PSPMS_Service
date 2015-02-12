@@ -126,7 +126,7 @@ router.put("/:id", function(req, res, next) {
 	var id = req.params.id;
 	var body = req.body;
 	var options = body.options || {};
-	options.runValidators = true;
+	// options.runValidators = true;
 
 	if(resolver.isUndefined(body.update)) {
 
@@ -135,12 +135,12 @@ router.put("/:id", function(req, res, next) {
 	}
 	else {
 
-		ResourceController.updateResourceById(id, body.update, options, req.isAdmin)
+		ResourceController.updateResourceById(id, body.update, options)
 			.then(function(newResource) {
 
 				res.status(200).json({ new: newResource });
 			})
-			.catch(function(err) {
+			.catch(function(err) {console.log(err);
 
 				var error = resolver.handleError(err);
 				next(error);
