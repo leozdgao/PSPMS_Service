@@ -53,7 +53,7 @@ ProjectController.addProject = function(project) {
 						var lastProject = results[0] || {};
 						// set last companyId
 						last = parseInt(lastProject.projectId);
-						if(!isNaN(last)) project.projectId = last + 1;
+						if(!isNaN(last)) project.projectId = ++last;
 
 						resolve(self._insert(project));
 					})
@@ -64,7 +64,7 @@ ProjectController.addProject = function(project) {
 			}
 			else {
 
-				project.projectId = last + 1;
+				project.projectId = ++last;
 				resolve(self._insert(project));
 			}
 		}

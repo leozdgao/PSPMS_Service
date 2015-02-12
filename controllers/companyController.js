@@ -45,7 +45,7 @@ CompanyController.addCompany = function(company) {
 						var lastCompany = results[0] || {};
 						// set last companyId
 						last = parseInt(lastCompany.companyId);
-						if(!isNaN(last)) company.companyId = last + 1;
+						if(!isNaN(last)) company.companyId = ++last;
 
 						resolve(self._insert(company));
 					})
@@ -56,7 +56,7 @@ CompanyController.addCompany = function(company) {
 			}
 			else {
 
-				company.companyId = last + 1;
+				company.companyId = ++last;
 				resolve(self._insert(company));
 			}
 		}

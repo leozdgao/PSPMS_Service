@@ -37,7 +37,7 @@ ResourceController.addResource = function(resource) {
 						var lastResource = results[0] || {};
 						// set last companyId
 						last = parseInt(lastResource.resourceId);
-						if(!isNaN(last)) resource.resourceId = last + 1;
+						if(!isNaN(last)) resource.resourceId = ++last;
 
 						resolve(self._insert(resource));
 					})
@@ -48,7 +48,7 @@ ResourceController.addResource = function(resource) {
 			}
 			else {
 
-				resource.resourceId = last + 1;
+				resource.resourceId = ++last;
 				resolve(self._insert(resource));
 			}
 		}
@@ -84,7 +84,7 @@ ResourceController.removeResourceById = function(id, options) {
 		})
 		.then(function() {
 
-			return self._removeOne(conditions)
+			return self._removeOne(conditions);
 		});
 }
 
