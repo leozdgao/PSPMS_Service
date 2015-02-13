@@ -151,3 +151,8 @@ exports.updateLoginDate = function updateLoginDate(uid) {
 
 	return Resource.updateAsync({ _id: uid }, { $currentDate: { 'account.lastLoginDate': true } }); 
 };
+
+exports.resetAccount = function resetAccount(id) {
+
+	return Resource.findOneAndUpdateAsync({ _id: id }, { account: null });
+}

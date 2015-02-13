@@ -123,7 +123,7 @@ router.post("/signup", function(req, res) {
 
 					res.status(400).json({ code: 4, msg: "User already exist." });
 				}
-				else {console.log(err);
+				else {
 
 					res.status(400).json({ code: 9, msg: "Error occurred while creating user." });	
 				}
@@ -135,12 +135,26 @@ router.post("/signup", function(req, res) {
 	}
 });
 
-// router.post('/resetaccount', function(req, res) {
+// reset the account, only admin have access to it.
+router.post('/resetaccount', function(req, res) {
 
-// 	var body = req.body;
-// 	var uid = body.uid;
-// 	var pwd = body.pwd;
-// 	var resourceId = body.resourceId;
-// });
+	if(req.isAdmin) {
+
+		var body = req.body;
+		var resourceId = body.resourceId;
+
+		AccountController.resetAccount(resourceId)
+			.then(function() {
+				res.status(200).end();
+			})
+			.catch(function() {
+				res.status(400).end();
+			})
+	}
+	else {
+
+		res.status(401).end();
+	}
+});
 
 module.exports = router;

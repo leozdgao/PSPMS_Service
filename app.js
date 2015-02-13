@@ -12,6 +12,7 @@ var config = require('./config.json');
 
 app.use(require('morgan')('dev'));
 
+if(config.auth) app.use(require('./middlewares/auth')());
 // routes
 app.use('/user', require('./routes/user'));
 app.use('/rest', require('./routes/rest'));
