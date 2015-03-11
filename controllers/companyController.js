@@ -25,7 +25,7 @@ CompanyController.getProjectIds = function(id, options) {
 	var conditions = { companyId: id };
 
 	return this.model.findOne(conditions)
-		.populate('projects', 'projectId name').execAsync();
+		.populate('projects', 'projectId name startDate lastUpdateDate status').execAsync();
 }
 
 var last;
