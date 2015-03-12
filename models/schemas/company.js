@@ -12,6 +12,6 @@ var companySchema = new Schema({
 	obsolete: { type: Boolean, default: false }
 }, { collection: "companies", versionKey: false });
 
-companySchema.path("clientId").validate(resolver.isValidClientId, "Invalid client id");
+// companySchema.path("clientId").validate(resolver.isValidClientId, "Invalid client id");
 
 module.exports = companySchema;
