@@ -174,16 +174,7 @@ router.delete("/:id", function(req, res, next) {
 	CompanyController.removeCompanyById(id, {}, req.isAdmin)
 		.then(function(results) {
 
-			var num = results[1] ? results[0] : 0;
-			if(num > 0) {
-
-				// sCache.remove(id);
-				res.status(200).json({ numAffected: num });
-			}
-			else {
-
-				next(resolver.handleError(null, 400, "Update not affected."));
-			}
+			res.status(200).json(results);
 		})
 		.catch(function(err) {
 
