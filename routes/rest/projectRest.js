@@ -134,7 +134,7 @@ router.post("/", function (req, res, next) {
 	ProjectController.addProject(body)
 		.then(function(result) {
 
-			res.status(200).json({ new: result });
+			res.status(200).json(result);
 		})
 		.catch(function(err) {
 
@@ -204,9 +204,9 @@ router.delete("/:id", function (req, res, next) {
 	var body = req.body;
 
 	ProjectController.removeProjectById(id, body, req.isAdmin)
-		.then(function() {
+		.then(function(result) {
 
-			res.status(200).end();
+			res.status(200).json(result);
 		})
 		.catch(function(err) {
 

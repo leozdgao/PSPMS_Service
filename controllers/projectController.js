@@ -79,9 +79,9 @@ ProjectController.addProject = function(project) {
 		newProject = results[0];
 		return CompanyModel.findOneAndUpdateAsync({ _id: newProject.companyId }, { '$push': { projects: newProject._id } });
 	})
-	.then(function() {
+	.then(function(result) {
 
-		return newProject;
+		return [newProject, result];
 	});
 }
 
@@ -112,7 +112,7 @@ ProjectController.changeCompany = function(id, cid) {
 
 ProjectController.removeProjectById = function(id, options) {
 
-	var conditions = { projectId: id }, self = this, oProject;
+	var conditions = { projectId: id }, self = this, oProject, tempP;
 
 	return self._findOne(conditions)
 		.then(function(project) {
@@ -132,12 +132,15 @@ ProjectController.removeProjectById = function(id, options) {
 			return self._removeOne(conditions);
 		})
 		// remove project in company
-		.then(function() {
-
+		.then(function(result) {
+			tempP = result;
 			if(oProject) {
 
 				return CompanyModel.findOneAndUpdateAsync({ _id: oProject.companyId }, { '$pull': { projects: oProject._id } });	
 			}
+		})
+		.then(function(result) {
+			return [result, tempP];
 		});
 }
 

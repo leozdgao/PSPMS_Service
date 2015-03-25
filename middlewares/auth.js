@@ -25,7 +25,7 @@ module.exports = function() {
 			else {
 
 				AccountController.getSession(token)
-					.then(function(session) {
+					.then(function(session) { console.log(session);
 
 						//save cache
 						sessionCache.set(token, session || void(0));
