@@ -10,6 +10,8 @@ var projectSchema = new Schema({
 	assemblyName: { type: String },
 	startDate: { type: Date, default: new Date() },
 	lastUpdateDate: { type: Date, default: new Date() },
+	// startDate: { type: Number, default: Date.now() },
+	// lastUpdateDate: { type: Number, default: Date.now() },
 	status: { type: Number, default: 0 },
 	description: { type: String },
 	sourceCode: { type: String },

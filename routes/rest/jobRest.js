@@ -25,7 +25,8 @@ router.use(function(req, res, next) {
 
 router.get('/', function(req, res, next) {
 
-	var query = resolver.resolveObject(req.query);
+	// var query = resolver.resolveObject(req.query);
+	var query = req.query; console.log(query);
 
 	JobController.getJobs(query.conditions, query.fields, query.options)
 		.then(function(jobs) {

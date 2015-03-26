@@ -20,6 +20,8 @@ var jobSchema = new Schema({
 	projectId: { type: Schema.Types.ObjectId, ref: "Project" },
 	startDate: { type: Date, default: new Date() },
 	endDate: { type: Date, default: new Date() },
+	// startDate: { type: Number, default: Date.now() },
+	// endDate: { type: Number, default: Date.now() },
 	status: { type: Number, default: 0 },
 	description: { type: String, required: true },
 	comment: { type: String },
