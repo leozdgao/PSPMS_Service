@@ -13,12 +13,18 @@ JobController.getJobById = function(id, fields, options) {
 
 	var conditions = { _id: id };
 
-	return this._findOne(conditions, fields, options);
+	// return this._findOne(conditions, fields, options);
+
+	return this.model.findOne(conditions)
+		.populate('workers.resourceId', 'resourceId name').execAsync();
 }
 
 JobController.getJobs = function(conditions, fields, options) {
 
-	return this._query(conditions, fields, options);
+	// return this._query(conditions, fields, options);
+
+	return this.model.find(conditions, fields, options)
+		.populate('workers.resourceId', 'resourceId name').execAsync();
 }
 
 JobController.addJob = function(job) {

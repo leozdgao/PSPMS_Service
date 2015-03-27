@@ -2,7 +2,7 @@ var Schema = require("mongoose").Schema;
 var resolver = require("../../helpers/resolve");
 
 var resourceInJobSchema = new Schema({
-	resourceId: { type: Number, required: true, ref: "Resource" },
+	resourceId: { type: Schema.Types.ObjectId, required: true, ref: "Resource" },
 	name: { type: String },
 	hour: { type: Number, default: 4 },
 	role: { type: Number, default: 0 }  // dev or test
