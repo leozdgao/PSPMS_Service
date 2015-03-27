@@ -16,7 +16,8 @@ JobController.getJobById = function(id, fields, options) {
 	// return this._findOne(conditions, fields, options);
 
 	return this.model.findOne(conditions)
-		.populate('workers.resourceId', 'resourceId name').execAsync();
+		.populate('workers.resourceId', 'resourceId name')
+		.populate('projectId').execAsync();
 }
 
 JobController.getJobs = function(conditions, fields, options) {
@@ -24,7 +25,8 @@ JobController.getJobs = function(conditions, fields, options) {
 	// return this._query(conditions, fields, options);
 
 	return this.model.find(conditions, fields, options)
-		.populate('workers.resourceId', 'resourceId name').execAsync();
+		.populate('workers.resourceId', 'resourceId name')
+		.populate('projectId').execAsync();
 }
 
 JobController.addJob = function(job) {
