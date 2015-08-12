@@ -9,5 +9,6 @@ router.use("/company", require("./rest/companyRest"));
 router.use("/project", require("./rest/projectRest"));
 router.use("/resource", require("./rest/resourceRest"));
 router.use("/job", require("./rest/jobRest"));
+router.use("/statistic", require("./rest/statisticRest"));
 
 module.exports = router;
