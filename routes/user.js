@@ -13,6 +13,7 @@ var resource = {
 	resourceId: -1,
 	name:'admin',
 	account:{
+		lastLoginDate: new Date(Date.now()),
 		uid: 'admin',
 		pwd: 'PxhTxtRAHAqlUEGcIg3fP6OUGE9/91rF4t2m7RV8mMXQ6qdYG3OpWxPOF4MdsToZVUGImgoTI/pzKCoJxEtGFvBxJS4nDcyI2mdNKz9wmF+anU7PJ5zfFNVFdAnK3QjS14ViP4XrErfMfo5CmVEB9h+K00LuSYHsicB+QuWXC40=',
 		salt: '12jHFSdlRLszUsnIX8fdxbEL/ar2xl0F2y2vZiKKXy/TIzAkG7CQpf5jJMBjShYuyicQVVBFVueQQ7vfH7Bm0yAe3j+2Ofz5O41838yp32SKogOBQAfXVPJtG5grhBls55G4TZ+IEpSum5dTZ1nfmzu0mwUrq1faJoTQEd8qjsY=',
@@ -53,7 +54,7 @@ router.post("/login", function(req, res) {
 									AccountController.updateLoginDate(user._id)]);
 			})
 			.then(function(results) {
-
+console.log(results);
 				var session = results[0][0];
 				console.log('After generate Session');
 				session.populate('resource', '-account', function(err, session) {
