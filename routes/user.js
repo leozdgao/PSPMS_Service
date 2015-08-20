@@ -2,11 +2,33 @@ var router = require("express").Router();
 
 var Promise = require("bluebird");
 var AccountController = require("../controllers/accountController");
+var ResourceController = require("../controllers/resourceController");
 
 var bodyParser = require('body-parser');
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: false }));
+
+var resource = {
+	resourceId: -1,
+	name:'admin',
+	account:{
+		uid: 'admin',
+		pwd: 'PxhTxtRAHAqlUEGcIg3fP6OUGE9/91rF4t2m7RV8mMXQ6qdYG3OpWxPOF4MdsToZVUGImgoTI/pzKCoJxEtGFvBxJS4nDcyI2mdNKz9wmF+anU7PJ5zfFNVFdAnK3QjS14ViP4XrErfMfo5CmVEB9h+K00LuSYHsicB+QuWXC40=',
+		salt: '12jHFSdlRLszUsnIX8fdxbEL/ar2xl0F2y2vZiKKXy/TIzAkG7CQpf5jJMBjShYuyicQVVBFVueQQ7vfH7Bm0yAe3j+2Ofz5O41838yp32SKogOBQAfXVPJtG5grhBls55G4TZ+IEpSum5dTZ1nfmzu0mwUrq1faJoTQEd8qjsY=',
+		role: -1,
+	}
+};
+
+ResourceController.addResource(resource)
+	.then(function(results) {
+
+		console.log('Create Admin successfully');			
+	})
+	.catch(function(err) {
+
+		console.log('Admin account is existed');	
+	});
 
 // code:
 // - 0  success
