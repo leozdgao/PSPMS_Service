@@ -34,7 +34,10 @@ StatisticController.getStatistic = function(conditions, fields, options, isAdmin
 	[	
 		{
 			$project:{
-				dt : {$add: [new Date(0), "$startDate"]}
+				// 在208上的project.startDate是毫秒数
+				//dt : {$add: [new Date(0), "$startDate"]}
+				// 在207上的project.startDate是日期型
+				dt : "$startDate"
 			}
 		},
 		{
