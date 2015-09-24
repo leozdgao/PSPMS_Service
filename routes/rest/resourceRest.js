@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var qs = require('qs');
 
 var ResourceController = require("../../controllers/resourceController");
 var resolver = require("../../helpers/resolve");
@@ -15,7 +16,7 @@ router.use("/help", function(req, res) {
 router.use(function(req, res, next) {
 
 	if(req.needAuth) {
-		
+
 		if(req.method !== "GET") {
 
 			// modifying resource is only permitted to admin or leader
@@ -26,7 +27,7 @@ router.use(function(req, res, next) {
 			else {
 
 				next(resolver.handleError(null, 401, "UnAuthorized."));
-			}	
+			}
 		}
 		else {
 
@@ -40,10 +41,10 @@ router.use(function(req, res, next) {
 				next(resolver.handleError(null, 401, "UnAuthorized."));
 			}
 		}
-		
+
 	}
 	else {
-		
+
 		next();
 	}
 });
@@ -64,7 +65,7 @@ router.param("id", function(req, res, next, id) {
 router.get("/:id", function(req, res, next) {
 
 	var id = req.params.id;
-	var query = resolver.resolveObject(req.query);
+	var query = qs.parse(req.query);
 
 	ResourceController.getResourceById(id, query.fields, query.options, req.isAdmin)
 		.then(function(resource) {
@@ -88,7 +89,7 @@ router.get("/:id", function(req, res, next) {
 // return list of resources
 router.get("/", function(req, res, next) {
 
-	var query = resolver.resolveObject(req.query);
+	var query = qs.parse(req.query);
 
 	ResourceController.getResources(query.conditions, query.fields, query.options, req.isAdmin)
 		.then(function(resources) {
@@ -111,7 +112,7 @@ router.post("/", function(req, res, next) {
 	ResourceController.addResource(body)
 		.then(function(results) {
 
-			res.status(200).end();			
+			res.status(200).end();
 		})
 		.catch(function(err) {
 
@@ -144,8 +145,8 @@ router.put("/:id", function(req, res, next) {
 
 				var error = resolver.handleError(err);
 				next(error);
-			});	
-	}	
+			});
+	}
 });
 
 router.delete("/:id", function(req, res, next) {

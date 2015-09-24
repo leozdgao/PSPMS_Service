@@ -1,4 +1,5 @@
 var express = require("express");
+var qs = require('qs');
 var router = express.Router();
 
 var StatisticController = require("../../controllers/statisticController");
@@ -24,8 +25,9 @@ router.use(function (req, res, next) {
 
 router.get("/", function (req, res, next) {
 
-	var query = resolver.resolveObject(req.query);
-	
+	// var query = resolver.resolveObject(req.query);
+	var query = qs.parse(req.query);
+
 	StatisticController.getStatistic(query.conditions, query.fields, query.options, req.isAdmin, function(err, result){
 		if (err == null) {
 			res.status(200).json(result);

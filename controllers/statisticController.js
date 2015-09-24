@@ -29,9 +29,8 @@ ObjectParse.Int = function(object){
 
 StatisticController.getStatistic = function(conditions, fields, options, isAdmin, callback) {
 	ObjectParse.Int(conditions);
-	console.log(conditions);
 	ProjectModel.aggregate(
-	[	
+	[
 		{
 			$project:{
 				// 在208上的project.startDate是毫秒数

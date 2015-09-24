@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var qs = require('qs');
 
 var JobController = require("../../controllers/jobController");
 var resolver = require("../../helpers/resolve");
@@ -43,7 +44,7 @@ router.get('/', function(req, res, next) {
 router.get('/:id', function(req, res, next) {
 
 	var id = req.params.id;
-	var query = resolver.resolveObject(req.query);
+	var query = qs.parse(req.query);
 
 	JobController.getJobById(id, query.fields, query.options)
 		.then(function(job) {
@@ -120,7 +121,7 @@ router.put('/:id', function(req, res, next) {
 					 job.workers.some(function(val) { return val.resourceId == req.session.resource; })) {
 
 						return JobController.updateJobById(id, body.update, options, req.isAdmin)
-							
+
 					}
 					else throw new Error("Can't find job " + id + ".")
 				})

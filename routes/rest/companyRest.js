@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var qs = require('qs');
 
 var CompanyController = require("../../controllers/companyController");
 var resolver = require("../../helpers/resolve");
@@ -48,7 +49,7 @@ router.param("pid", function(req, res, next, pid) {
 
 router.get("/", function(req, res, next) {
 
-	var query = resolver.resolveObject(req.query);
+	var query = qs.parse(req.query);
 
 	CompanyController.getCompanies(query.conditions, query.fields, query.options, req.isAdmin)
 		.then(function(companies) {
@@ -64,7 +65,7 @@ router.get("/", function(req, res, next) {
 
 router.get("/:id", function(req, res, next) {
 
-	var query = resolver.resolveObject(req.query);
+	var query = qs.parse(req.query);
 	var id = req.params.id;
 
 	CompanyController.getCompanyById(id, query.fields, query.options, req.isAdmin)
@@ -88,7 +89,7 @@ router.get("/:id", function(req, res, next) {
 
 router.get("/:id/projects", function(req, res, next) {
 
-	var query = resolver.resolveObject(req.query);
+	var query = qs.parse(req.query);
 	var id = req.params.id;
 
 	CompanyController.getProjectIds(id, query.options, req.isAdmin)

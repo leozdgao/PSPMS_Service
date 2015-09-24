@@ -1,5 +1,6 @@
 var express = require("express");
 var router = express.Router();
+var qs = require('qs');
 
 var ProjectController = require("../../controllers/projectController");
 var resolver = require("../../helpers/resolve");
@@ -36,7 +37,7 @@ router.param("id", function (req, res, next, pid) {
 
 router.get("/", function (req, res, next) {
 
-	var query = resolver.resolveObject(req.query);
+	var query = qs.parse(req.query);
 
 	ProjectController.getProjects(query.conditions, query.fields, query.options, req.isAdmin)
 		.then(function(projects) {
@@ -52,7 +53,7 @@ router.get("/", function (req, res, next) {
 
 router.get("/:id", function (req, res, next) {
 
-	var query = resolver.resolveObject(req.query);
+	var query = qs.parse(req.query);
 	var id = req.params.id;
 
 	ProjectController.getProjectById(id, query.fields, query.options, req.isAdmin)
@@ -77,7 +78,7 @@ router.get("/:id", function (req, res, next) {
 // query company of project
 router.get("/:id/company", function (req, res, next) {
 
-	var query = resolver.resolveObject(req.query);
+	var query = qs.parse(req.query);
 	var id = req.params.id;
 
 	ProjectController.getCompanyOfProject(id, query.fields, req.isAdmin)
@@ -102,7 +103,7 @@ router.get("/:id/company", function (req, res, next) {
 // query jobs of project //TODO
 router.get("/:id/jobs", function (req, res, next) {
 
-	var query = resolver.resolveObject(req.query);
+	var query = qs.parse(req.query);
 	var id = req.params.id;
 
 	ProjectController.getJobsOfProject(id, query.fields, req.isAdmin)
@@ -172,7 +173,7 @@ router.put("/:id", function (req, res, next) {
 				}
 			})
 			.catch(function(err) {
-				
+
 				var error = resolver.handleError(err);
 				next(error);
 			});
