@@ -141,8 +141,7 @@ router.put("/:id", function(req, res, next) {
 
 				res.status(200).json({ new: newResource });
 			})
-			.catch(function(err) {console.log(err);
-
+			.catch(function(err) {
 				var error = resolver.handleError(err);
 				next(error);
 			});

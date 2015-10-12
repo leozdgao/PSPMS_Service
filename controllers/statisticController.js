@@ -28,7 +28,7 @@ ObjectParse.Int = function(object){
 
 
 StatisticController.getStatistic = function(conditions, fields, options, isAdmin, callback) {
-	ObjectParse.Int(conditions);
+	conditions = ObjectParse.Int(conditions?conditions:{});
 	ProjectModel.aggregate(
 	[
 		{

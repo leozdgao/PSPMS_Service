@@ -160,7 +160,6 @@ router.put("/:id", function(req, res, next) {
 				res.status(200).json({ new: newCompany });
 			})
 			.catch(function(err) {
-				console.log(err);
 				var error = resolver.handleError(err);
 				next(error);
 			});

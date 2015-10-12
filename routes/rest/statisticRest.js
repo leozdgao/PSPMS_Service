@@ -32,7 +32,7 @@ router.get("/", function (req, res, next) {
 		if (err == null) {
 			res.status(200).json(result);
 		} else{
-			var err = resolver.handleError(err);
+			var err = resolver.handleError(err, 400);
 			next(err);
 		}
 	});
