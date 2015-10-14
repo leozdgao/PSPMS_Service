@@ -37,7 +37,7 @@ router.param("id", function (req, res, next, pid) {
 
 router.get("/", function (req, res, next) {
 
-	var query = qs.parse(req.query);
+	var query = qs.parse(req.query, { allowDots: true });
 
 	ProjectController.getProjects(query.conditions, query.fields, query.options, req.isAdmin)
 		.then(function(projects) {
@@ -53,7 +53,7 @@ router.get("/", function (req, res, next) {
 
 router.get("/:id", function (req, res, next) {
 
-	var query = qs.parse(req.query);
+	var query = qs.parse(req.query, { allowDots: true });
 	var id = req.params.id;
 
 	ProjectController.getProjectById(id, query.fields, query.options, req.isAdmin)
@@ -78,7 +78,7 @@ router.get("/:id", function (req, res, next) {
 // query company of project
 router.get("/:id/company", function (req, res, next) {
 
-	var query = qs.parse(req.query);
+	var query = qs.parse(req.query, { allowDots: true });
 	var id = req.params.id;
 
 	ProjectController.getCompanyOfProject(id, query.fields, req.isAdmin)
@@ -103,7 +103,7 @@ router.get("/:id/company", function (req, res, next) {
 // query jobs of project //TODO
 router.get("/:id/jobs", function (req, res, next) {
 
-	var query = qs.parse(req.query);
+	var query = qs.parse(req.query, { allowDots: true });
 	var id = req.params.id;
 
 	ProjectController.getJobsOfProject(id, query.fields, req.isAdmin)

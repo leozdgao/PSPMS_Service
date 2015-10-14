@@ -26,7 +26,7 @@ router.use(function (req, res, next) {
 router.get("/", function (req, res, next) {
 
 	// var query = resolver.resolveObject(req.query);
-	var query = qs.parse(req.query);
+	var query = qs.parse(req.query, { allowDots: true });
 
 	StatisticController.getStatistic(query.conditions, query.fields, query.options, req.isAdmin, function(err, result){
 		if (err == null) {

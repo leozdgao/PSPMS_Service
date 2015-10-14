@@ -44,7 +44,7 @@ router.get('/', function(req, res, next) {
 router.get('/:id', function(req, res, next) {
 
 	var id = req.params.id;
-	var query = qs.parse(req.query);
+	var query = qs.parse(req.query, { allowDots: true });
 
 	JobController.getJobById(id, query.fields, query.options)
 		.then(function(job) {

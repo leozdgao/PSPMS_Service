@@ -24,11 +24,11 @@ var resource = {
 ResourceController.addResource(resource)
 	.then(function(results) {
 
-		console.log('Create Admin successfully');			
+		console.log('Create Admin successfully');
 	})
 	.catch(function(err) {
 
-		console.log('Admin account is existed');	
+		console.log('Admin account is existed');
 	});
 
 // code:
@@ -115,10 +115,10 @@ router.get("/relog", function(req, res) {
 
 				session.populate('resource', '-account', function(err, session) {
 
-					res.status(200).json(session);	
+					res.status(200).json(session);
 				});
 			}
-			
+
 		})
 		.catch(function() {
 
@@ -148,7 +148,7 @@ router.post("/signup", function(req, res) {
 				}
 				else {
 
-					res.status(400).json({ code: 9, msg: "Error occurred while creating user." });	
+					res.status(400).json({ code: 9, msg: "Error occurred while creating user." });
 				}
 			});
 	}
