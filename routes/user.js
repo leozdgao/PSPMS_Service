@@ -54,7 +54,6 @@ router.post("/login", function(req, res) {
 									AccountController.updateLoginDate(user._id)]);
 			})
 			.then(function(results) {
-console.log(results);
 				var session = results[0][0];
 				console.log('After generate Session');
 				session.populate('resource', '-account', function(err, session) {
@@ -66,7 +65,7 @@ console.log(results);
 			.catch(function(err) {
 				console.log(err);
 
-				res.status(400).json({ code: 1, msg: "uid or pwd is wrong" });
+				res.status(200).json({ code: 1, msg: "uid or pwd is wrong" });
 			});
 	}
 	else {
