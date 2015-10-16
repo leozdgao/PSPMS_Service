@@ -18,7 +18,7 @@ exports.checkPassword = function checkPassword(uid, pwd) {
 			.then(function(u) {
 
 				if(u != null) {
-					
+
 					user = u;
 
 					return hash(pwd, user.account.salt);
@@ -26,7 +26,7 @@ exports.checkPassword = function checkPassword(uid, pwd) {
 				// can't find user
 				else {
 
-					reject("Can't find user.");	
+					reject("Can't find user.");
 				}
 			})
 			.then(function(code) {
@@ -105,7 +105,7 @@ exports.newUser = function newUser(resourceId, uid, pwd, role) {
 				var num = results[1];
 				if(num >= 1) {
 
-					resolve(results[0]);	
+					resolve(results[0]);
 				}
 				else {
 
@@ -131,7 +131,7 @@ exports.generateSession = function generateSession(resource) {
 					session.resource = resource._id;
 					session.role = resource.account.role;
 					session.token = md5(secret);
-					session.expire = Date.now() + 3600000; // session expired after an hour
+					session.expire = Date.now() + 3600000 * 24; // session expired after an hour
 
 					return session.saveAsync();
 				});
@@ -149,7 +149,7 @@ exports.removeSession = function removeSession(token) {
 
 exports.updateLoginDate = function updateLoginDate(uid) {
 
-	return Resource.updateAsync({ _id: uid }, { $currentDate: { 'account.lastLoginDate': true } }); 
+	return Resource.updateAsync({ _id: uid }, { $currentDate: { 'account.lastLoginDate': true } });
 };
 
 exports.resetAccount = function resetAccount(id) {

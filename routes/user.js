@@ -80,7 +80,7 @@ router.get("/isAuth", function(req, res) {
 
 		AccountController.getSession(req.query['token'])
 			.then(function(session) {
-				if (session) {
+				if (session && Date.now() <= session['expire']) {
 					ResourceController.getResourceById(session['role'])
 						.then(function(result){
 							result['account'] = undefined;
