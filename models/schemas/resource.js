@@ -5,6 +5,7 @@ var resourceSchema = new Schema({
 	_id: { type: Schema.Types.ObjectId, auto: true },
 	resourceId: { type: Number, required: true, unique: true },
 	name: { type: String, required: true },
+	avatar: { type: String },
 	joinDate: { type: Date, default: new Date() },
 	leaveDate: { type: Date },
 	email: { type: String },
