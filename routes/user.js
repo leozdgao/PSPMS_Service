@@ -74,6 +74,27 @@ router.post("/login", function(req, res) {
 	}
 });
 
+router.get("/isAuth", function(req, res) {
+
+	if(req.query['token']) {
+
+		AccountController.getSession(req.query['token'])
+			.then(function(session) {
+				if (session) {
+					ResourceController.getResourceById(session['role'])
+						.then(function(result){
+							result['account'] = undefined;
+							res.status(200).json({ ok: 1, user: result });
+						});
+				} else {
+					res.status(200).json({ ok: 0, user:{} });
+				}
+			});
+	} else {
+		res.status(400).json({ code: 1, msg: "Invalid user token." });
+	}
+});
+
 router.get("/logout", function(req, res) {
 	var token = req.query.token;
 
