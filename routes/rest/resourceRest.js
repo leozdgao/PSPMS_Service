@@ -12,6 +12,74 @@ router.use("/help", function(req, res) {
 	});
 });
 
+router.param("id", function(req, res, next, id) {
+
+	if(!resolver.isNumber(id)) {
+
+		next(resolver.handleError(null, 400, "Invalid resource id."));
+	}
+	else {
+
+		next();
+	}
+});
+
+// get a single resource
+router.get("/:id", function(req, res, next) {
+
+	var id = req.params.id;
+	var query = qs.parse(req.query, { allowDots: true });
+
+	ResourceController.getResourceById(id, query.fields, query.options, req.isAdmin)
+		.then(function(resource) {
+
+			if(resolver.isDefined(resource)) {
+
+				// clear account
+				for (var i = 0; i < resources.length; i++) {
+					for (var props in resources[i]) {
+						resources[i]["account"] = undefined
+					}
+				}
+
+				res.status(200).json(resource);
+			}
+			else {
+
+				next(resolver.handleError(null, 404, "Can't find resource " + id + "."));
+			}
+		})
+		.catch(function(err) {
+
+			var error = resolver.handleError(err);
+			next(error);
+		});
+});
+
+// return list of resources
+router.get("/", function(req, res, next) {
+
+	var query = qs.parse(req.query, { allowDots: true });
+
+	ResourceController.getResources(query.conditions, query.fields, query.options, req.isAdmin)
+		.then(function(resources) {
+
+			// clear account
+			for (var i = 0; i < resources.length; i++) {
+				for (var props in resources[i]) {
+					resources[i]["account"] = undefined
+				}
+			}
+
+			res.status(200).json(resources);
+		})
+		.catch(function(err) {
+
+			var error = resolver.handleError(err);
+			next(error);
+		});
+});
+
 // auth first
 router.use(function(req, res, next) {
 
@@ -47,60 +115,6 @@ router.use(function(req, res, next) {
 
 		next();
 	}
-});
-
-router.param("id", function(req, res, next, id) {
-
-	if(!resolver.isNumber(id)) {
-
-		next(resolver.handleError(null, 400, "Invalid resource id."));
-	}
-	else {
-
-		next();
-	}
-});
-
-// get a single resource
-router.get("/:id", function(req, res, next) {
-
-	var id = req.params.id;
-	var query = qs.parse(req.query, { allowDots: true });
-
-	ResourceController.getResourceById(id, query.fields, query.options, req.isAdmin)
-		.then(function(resource) {
-
-			if(resolver.isDefined(resource)) {
-
-				res.status(200).json(resource);
-			}
-			else {
-
-				next(resolver.handleError(null, 404, "Can't find resource " + id + "."));
-			}
-		})
-		.catch(function(err) {
-
-			var error = resolver.handleError(err);
-			next(error);
-		});
-});
-
-// return list of resources
-router.get("/", function(req, res, next) {
-
-	var query = qs.parse(req.query, { allowDots: true });
-
-	ResourceController.getResources(query.conditions, query.fields, query.options, req.isAdmin)
-		.then(function(resources) {
-
-			res.status(200).json(resources);
-		})
-		.catch(function(err) {
-
-			var error = resolver.handleError(err);
-			next(error);
-		});
 });
 
 router.use(require("body-parser").json());
