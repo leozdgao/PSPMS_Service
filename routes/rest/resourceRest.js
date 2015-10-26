@@ -64,10 +64,12 @@ router.get("/", function(req, res, next) {
 	ResourceController.getResources(query.conditions, query.fields, query.options, req.isAdmin)
 		.then(function(resources) {
 
-			// clear account
-			for (var i = 0; i < resources.length; i++) {
-				for (var props in resources[i]) {
-					resources[i]["account"] = undefined
+			if (!req.isAdmin) {
+				// clear account
+				for (var i = 0; i < resources.length; i++) {
+					for (var props in resources[i]) {
+						resources[i]["account"] = undefined
+					}
 				}
 			}
 
