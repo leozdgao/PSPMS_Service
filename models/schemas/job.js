@@ -42,7 +42,7 @@ var jobSchema = new Schema({
 	// 	}
 	// },
 	// workers: { type: [resourceInJobSchema] },
-}, { _id: false, versionKey: false });
+}, { _id: false, versionKey: false, collection: 'tasks' });
 
 //
 // build status: 0 - Not Started, 1 - In Progress, 2 - Ready,

@@ -177,7 +177,7 @@ router.delete('/:id', function(req, res, next) {
 
 router.use(function(req, res) {
 
-	res.redirect("/rest/job/help");
+	res.redirect("/rest/task/help");
 });
 
 module.exports = router;
