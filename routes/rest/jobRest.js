@@ -27,8 +27,8 @@ router.use(function(req, res, next) {
 router.get('/', function(req, res, next) {
 
 	// var query = resolver.resolveObject(req.query);
-	var query = req.query; console.log(query);
-
+	var query = qs.parse(req.query, { allowDots: true });
+	// console.log(query);
 	JobController.getJobs(query.conditions, query.fields, query.options)
 		.then(function(jobs) {
 
@@ -117,13 +117,8 @@ router.put('/:id', function(req, res, next) {
 			JobController.getJobById(id)
 				.then(function(job) {
 
-					if(job != null &&
-					 job.workers.some(function(val) { return val.resourceId == req.session.resource; })) {
-
 						return JobController.updateJobById(id, body.update, options, req.isAdmin)
 
-					}
-					else throw new Error("Can't find job " + id + ".")
 				})
 				.then(function(newResource) {
 
@@ -177,7 +172,7 @@ router.delete('/:id', function(req, res, next) {
 
 router.use(function(req, res) {
 
-	res.redirect("/rest/task/help");
+	res.redirect("/rest/job/help");
 });
 
 module.exports = router;

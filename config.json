@@ -1,8 +1,9 @@
 {
 	"port": 1339,
-	"dbConnectionTest2": "mongodb://10.10.73.209:27017/PSPMS_Test",
-	"dbConnectionTest1": "mongodb://10.10.73.207:27017,10.10.73.208:27017/PSPMS_Test",
-	"dbConnection": "mongodb://10.10.73.207:27018/PSPMS_Test",
+	"dbConnectionTest1": "mongodb://10.10.73.209:27017/PSPMS_Test",
+	"dbConnectionTest2": "mongodb://10.10.73.207:27017,10.10.73.208:27017/PSPMS_Test",
+	"dbConnectionTest3": "mongodb://10.10.73.207:27018/PSPMS_Test",
+	"dbConnection": "mongodb://10.10.73.207:27018/PSPMS_Test151023",
 	"staticFolder": "P:\\",
 	"auth": true
 }
