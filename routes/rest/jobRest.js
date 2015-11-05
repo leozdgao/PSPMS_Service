@@ -77,7 +77,7 @@ router.post('/', function(req, res, next) {
 	else {
 
 		var body = req.body;
-		if(!body.projectId) {
+		if(body.projectId) {
 
 			JobController.addJob(body)
 				.then(function(results) {
