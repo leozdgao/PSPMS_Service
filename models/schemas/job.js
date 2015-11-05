@@ -20,7 +20,7 @@ var jobSchema = new Schema({
 	projectId: { type: Schema.Types.ObjectId, ref: "Project" },
 	title: { type: String, required: true },
 	assignee: { type: Array },
-	sealed: { type: Boolean, required: true },
+	sealed: { type: Boolean, default: false },
 	startDate: { type: Date, default: new Date() },
 	endDate: { type: Date, default: new Date() },
 	// startDate: { type: Number, default: Date.now() },
