@@ -74,6 +74,25 @@ router.post("/login", function(req, res) {
 	}
 });
 
+router.post('/cpwd', function (req, res) {
+	var id = req.body._id
+	var oldpwd = req.body.oldpwd
+	var newpwd = req.body.newpwd
+	if (id && oldpwd && newpwd && newpwd.length >= 6) {
+		AccountController.changePassword(id, oldpwd, newpwd)
+			.then(function (result) {
+				res.json(result)
+			})
+			.catch(function (e) {
+				if (e) res.status(400).json({ msg: e })
+				else res.status(500).json()
+			})
+	}
+	else {
+		res.status(400).json({ msg: 'invalid body' })
+	}
+})
+
 router.get("/isAuth", function(req, res) {
 
 	if(req.query['token']) {
