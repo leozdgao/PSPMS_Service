@@ -9,6 +9,8 @@ var resourceSchema = new Schema({
 	joinDate: { type: Date, default: new Date() },
 	leaveDate: { type: Date },
 	email: { type: String },
+	tel: { type: String },
+	qq: { type: String },
 	isIntern: { type: Boolean, default: false },
 	account: {
 		uid: { type: String },
