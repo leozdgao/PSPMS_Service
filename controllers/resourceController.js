@@ -61,7 +61,7 @@ ResourceController.addResource = function(resource) {
 
 ResourceController.updateResourceById = function(id, update, options) {
 
-	var conditions = { resourceId: id };
+	var conditions = { _id: id };
 
 	return this._updateOne(conditions, update, options);
 }
