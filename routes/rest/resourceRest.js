@@ -83,41 +83,41 @@ router.get("/", function(req, res, next) {
 });
 
 // auth first
-router.use(function(req, res, next) {
+// router.use(function(req, res, next) {
 
-	if(req.needAuth) {
+// 	if(req.needAuth) {
 
-		if(req.method !== "GET") {
+// 		if(req.method !== "GET") {
 
-			// modifying resource is only permitted to admin or leader
-			if(req.isAdmin || req.isLeader) {
+// 			// modifying resource is only permitted to admin or leader
+// 			if(req.isAdmin || req.isLeader) {
 
-				next();
-			}
-			else {
+// 				next();
+// 			}
+// 			else {
 
-				next(resolver.handleError(null, 401, "UnAuthorized."));
-			}
-		}
-		else {
+// 				next(resolver.handleError(null, 401, "UnAuthorized."));
+// 			}
+// 		}
+// 		else {
 
-			// own users who logged in can view resources
-			if(req.isAuth) {
+// 			// own users who logged in can view resources
+// 			if(req.isAuth) {
 
-				next();
-			}
-			else {
+// 				next();
+// 			}
+// 			else {
 
-				next(resolver.handleError(null, 401, "UnAuthorized."));
-			}
-		}
+// 				next(resolver.handleError(null, 401, "UnAuthorized."));
+// 			}
+// 		}
 
-	}
-	else {
+// 	}
+// 	else {
 
-		next();
-	}
-});
+// 		next();
+// 	}
+// });
 
 router.use(require("body-parser").json());
 
@@ -138,7 +138,10 @@ router.post("/", function(req, res, next) {
 });
 
 // update part of resource
-router.put("/:id", function(req, res, next) {
+router.put("/:id", function (req, res, next) {
+	if (req.session.resource == req.params.id) next();
+	else next(resolver.handleError(null, 401, "UnAuthorized."));
+}, function(req, res, next) {
 
 	var id = req.params.id;
 	var body = req.body;

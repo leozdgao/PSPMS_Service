@@ -22,7 +22,7 @@ var jobSchema = new Schema({
 	assignee: { type: Array },
 	sealed: { type: Boolean, default: false },
 	startDate: { type: Date, default: new Date() },
-	endDate: { type: Date, default: new Date() },
+	endDate: { type: Date },
 	// startDate: { type: Number, default: Date.now() },
 	// endDate: { type: Number, default: Date.now() },
 	// status: { type: Number, default: 0 },
