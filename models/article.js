@@ -15,7 +15,8 @@ var articleSchema = new Schema({
     priority: { type: Number, default: 0 },
     content: { type: String, required: true },
     comments: { type: Array },
-    attachments: { type: [attSchema], default: [] }
+    attachments: { type: [attSchema], default: [] },
+    author: { type: Schema.Types.ObjectId, required: true }
 }, { collection: 'articles', versionKey: false });
 
 var Article = mongoose.model('Article', articleSchema);
