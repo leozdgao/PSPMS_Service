@@ -61,7 +61,7 @@ router.get('/:article_id', function(req, res, next) {
 router.post('/', require('body-parser').json(), function(req, res, next) {
   Article.post(req.body)
     .then(function(result) {
-      res.json(result);
+      res.json(result[0]);
     })
     .catch(function(err) {
       next(err);
