@@ -25,14 +25,15 @@ router.use(function(req, res, next) {
 
 router.param("id", function(req, res, next, id) {
 
-	if(!resolver.isNumber(id)) {
-
-		next(resolver.handleError(null, 400, "Invalid company id."));
-	}
-	else {
-
-		next();
-	}
+	// if(!resolver.isNumber(id)) {
+	//
+	// 	next(resolver.handleError(null, 400, "Invalid company id."));
+	// }
+	// else {
+	//
+	// 	next();
+	// }
+	next()
 });
 
 router.param("pid", function(req, res, next, pid) {
