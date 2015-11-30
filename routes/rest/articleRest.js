@@ -1,6 +1,8 @@
 var router = require('express').Router();
-var Article = require('../../models/article');
 var qs = require('qs')
+var Article = require('../../models/article');
+var resolver = require("../../helpers/resolve");
+
 
 router.param('article_id', function(req, res, next, id) {
   req.article_id = id;
@@ -51,7 +53,8 @@ router.get('/:article_id', function(req, res, next) {
     var query = req.query;
     Article.get(req.article_id, query.fields, query.options)
       .then(function(article) {
-        res.json(article);
+        if (article == null) next(resolver.handleError(null, 404, "Can't find post " + req.article_id + "."));
+        else res.json(article);
       })
       .catch(function(err) {
         next(err);

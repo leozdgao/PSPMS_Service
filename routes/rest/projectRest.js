@@ -25,14 +25,14 @@ router.use(function (req, res, next) {
 
 router.param("id", function (req, res, next, pid) {
 
-	if(!resolver.isNumber(pid)) {
-
-		next(resolver.handleError(null, 400, "Invalid project id."));
-	}
-	else {
+	// if(!resolver.isNumber(pid)) {
+	//
+	// 	next(resolver.handleError(null, 400, "Invalid project id."));
+	// }
+	// else {
 
 		next();
-	}
+	// }
 });
 
 router.get("/", function (req, res, next) {

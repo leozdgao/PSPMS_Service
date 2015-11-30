@@ -69,7 +69,7 @@ CompanyController.addCompany = function(company) {
 
 CompanyController.updateCompanyById = function(id, update, options) {
 
-	var conditions = { companyId: id };
+	var conditions = { _id: id };
 
 	return this._updateOne(conditions, update, options);
 }
@@ -81,7 +81,7 @@ CompanyController.updateCompany = function(conditions, update, options) {
 
 CompanyController.removeCompanyById = function(id, options) {
 
-	var conditions = { companyId: id }, self = this;
+	var conditions = { _id: id }, self = this;
 
 	return self._findOne(conditions)
 		.then(function(company) {
