@@ -28,11 +28,9 @@ ArticleSetController.searchArticleSet = function(folderPath) {
 }
 
 ArticleSetController.addArticleSet = function(folderPath, folderName) {
-
   var self = this;
   var promise = self.searchArticleSet(folderPath)
     .then(function (dirFolder) {
-      if (dirFolder === undefined) reject();
 
       var newSet = new ArticleSetModel({ name: folderName });
       var update = '{"$push":{"folders', path = '';
@@ -42,6 +40,32 @@ ArticleSetController.addArticleSet = function(folderPath, folderName) {
       update += path + '":{}}}'
       update = JSON.parse(update);
       update['$push']['folders' + path] = newSet;
+
+      return self._updateOne({}, update, { 'new': true });
+    })
+  return promise;
+}
+
+ArticleSetController.deleteArticleSet = function(folderPath) {
+  var self = this;
+  var promise = self.searchArticleSet(folderPath)
+    .then(function (dirFolder) {
+      var update = '{"$unset":{"folders', path = '';
+      for (index of folderPath) {
+        path += '.' + index
+      }
+      update += path + '":1}}'
+      update = JSON.parse(update);
+
+      return self._updateOne({}, update, { 'new': true });
+    })
+    .then(function () {
+      var update = '{"$pull":{"folders', path = '';
+      for (var i = 0; i < folderPath.length - 1; i++) {
+        path += '.' + folderPath[i]
+      }
+      update += path + '":null}}'
+      update = JSON.parse(update);
 
       return self._updateOne({}, update, { 'new': true });
     })
