@@ -50,6 +50,10 @@ ArticleSetController.deleteArticleSet = function(folderPath) {
   var self = this;
   var promise = self.searchArticleSet(folderPath)
     .then(function (dirFolder) {
+      if (folderPath.length === 0)
+        return new Promise (function (resolve, reject){
+          reject('Cannot delete root folder.')
+        })
       var update = '{"$unset":{"folders', path = '';
       for (index of folderPath) {
         path += '.' + index
@@ -70,6 +74,22 @@ ArticleSetController.deleteArticleSet = function(folderPath) {
       return self._updateOne({}, update, { 'new': true });
     })
   return promise;
+}
+
+ArticleSetController.moveArticleSet = function(conditions, fields, options) {
+  // var self = this;
+  // var promise = self.searchArticleSet(folderPath)
+  //   .then(function (dirFolder) {
+  //     var update = '{"$unset":{"folders', path = '';
+  //     for (index of folderPath) {
+  //       path += '.' + index
+  //     }
+  //     update += path + '":1}}'
+  //     update = JSON.parse(update);
+  //
+  //     return self._updateOne({}, update, { 'new': true });
+  //   })
+  // return promise;
 }
 
 module.exports = ArticleSetController;

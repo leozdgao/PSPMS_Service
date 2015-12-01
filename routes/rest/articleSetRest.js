@@ -63,8 +63,16 @@ router.delete("/", function(req, res, next) {
 		});
 });
 
-router.delete("/", function(req, res, next) {
-	var query = qs.parse(req.query, { allowDots: true });
-});
+// router.put("/", function(req, res, next) {
+// 	var body = req.body;
+// 	ArticleSetController.moveArticleSet(body['from'], body['to'])
+// 		.then(function(articleSet) {
+// 				res.status(200).json({ok:1, result: articleSet});
+// 		})
+// 		.catch(function(errMsg) {
+// 			var err = resolver.handleError(null, 400, {ok:0, result: errMsg});
+// 			next(err);
+// 		});
+// });
 
 module.exports = router;
