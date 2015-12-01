@@ -11,5 +11,6 @@ router.use("/resource", require("./rest/resourceRest"));
 router.use("/task", require("./rest/jobRest"));
 router.use("/statistic", require("./rest/statisticRest"));
 router.use("/article", require("./rest/articleRest"));
+router.use("/set", require("./rest/articleSetRest"));
 
 module.exports = router;
