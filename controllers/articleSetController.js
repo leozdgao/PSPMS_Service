@@ -113,23 +113,23 @@ ArticleSetController.addArticle = function(folderPath, fileID) {
   return promise;
 }
 
-// ArticleSetController.addArticle = function(folderPath, fileID) {
-//   var self = this;
-//   var promise = self.searchArticleSet(folderPath);
-//     .then(function (dirFolder) {
-//
-//       var update = '{"$pull":{"', path = '';
-//       for (index of folderPath) {
-//         path += 'folders.' + index;
-//       }
-//       if (folderPath.length !== 0) path += '.';
-//       update += path + 'files":{}}}';
-//       update = JSON.parse(update);
-//       update['$push'][path + 'files'] = new mongoose.Types.ObjectId(fileID);
-//
-//       return self._updateOne({}, update, { 'new': true });
-//     })
-//   return promise;
-// }
+ArticleSetController.deleteArticle = function(folderPath, fileID) {
+  var self = this;
+  var promise = self.searchArticleSet(folderPath)
+    .then(function (dirFolder) {
+
+      var update = '{"$pull":{"', path = '';
+      for (index of folderPath) {
+        path += 'folders.' + index;
+      }
+      if (folderPath.length !== 0) path += '.';
+      update += path + 'files":{}}}';
+      update = JSON.parse(update);
+      update['$pull'][path + 'files'] = new mongoose.Types.ObjectId(fileID);
+
+      return self._updateOne({}, update, { 'new': true });
+    })
+  return promise;
+}
 
 module.exports = ArticleSetController;
