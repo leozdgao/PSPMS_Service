@@ -99,4 +99,16 @@ router.delete("/article", function(req, res, next) {
 		});
 });
 
+router.put("/article", function(req, res, next) {
+	var body = req.body;
+	ArticleSetController.moveArticle(body['folders'], body['toFolder'], body['fileID'])
+		.then(function(articleSet) {
+				res.status(200).json({ok:1, result: articleSet});
+		})
+		.catch(function(errMsg) {
+			var err = resolver.handleError(null, 400, {ok:0, result: errMsg});
+			next(err);
+		});
+});
+
 module.exports = router;

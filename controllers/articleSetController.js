@@ -137,4 +137,13 @@ ArticleSetController.deleteArticle = function(folderPath, fileID) {
   return promise;
 }
 
+ArticleSetController.moveArticle = function(folderPath, toFolder, fileID) {
+  var self = this;
+  var promise = self.deleteArticle(folderPath, fileID)
+		.then(function () {
+			return self.addArticle(toFolder, fileID)
+		})
+  return promise;
+}
+
 module.exports = ArticleSetController;
