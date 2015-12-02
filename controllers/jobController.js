@@ -30,12 +30,16 @@ JobController.getJobs = function(conditions, fields, options) {
 }
 
 JobController.addJob = function(job) {
-
+	var ret
 	var projectId = job.projectId;
-	var tasks = [ this._insert(job) ];
-	if(projectId) tasks.push(ProjectModel.findOneAndUpdateAsync({ _id: projectId }, { '$push': { jobs: jobId } }));
+	return this._insert(job)
+		.then(function(result){
+			ret = result
+			return ProjectModel.findOneAndUpdateAsync({ _id: projectId }, { '$push': { jobs: result._id } });
+		})
+		.then(function () { return ret })
 
-	return Promise.all(tasks);
+	// return Promise.all(tasks);
 }
 
 JobController.updateJobById = function(id, update, options) {

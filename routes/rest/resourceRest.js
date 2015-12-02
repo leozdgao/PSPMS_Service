@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var qs = require('qs');
 
 var ResourceController = require("../../controllers/resourceController");
 var resolver = require("../../helpers/resolve");
@@ -9,43 +10,6 @@ router.use("/help", function(req, res) {
 	res.status(200).json({
 		availableApi: require("./helpers.json").resource
 	});
-});
-
-// auth first
-router.use(function(req, res, next) {
-
-	if(req.needAuth) {
-		
-		if(req.method !== "GET") {
-
-			// modifying resource is only permitted to admin or leader
-			if(req.isAdmin || req.isLeader) {
-
-				next();
-			}
-			else {
-
-				next(resolver.handleError(null, 401, "UnAuthorized."));
-			}	
-		}
-		else {
-
-			// own users who logged in can view resources
-			if(req.isAuth) {
-
-				next();
-			}
-			else {
-
-				next(resolver.handleError(null, 401, "UnAuthorized."));
-			}
-		}
-		
-	}
-	else {
-		
-		next();
-	}
 });
 
 router.param("id", function(req, res, next, id) {
@@ -64,12 +28,19 @@ router.param("id", function(req, res, next, id) {
 router.get("/:id", function(req, res, next) {
 
 	var id = req.params.id;
-	var query = resolver.resolveObject(req.query);
+	var query = qs.parse(req.query, { allowDots: true });
 
 	ResourceController.getResourceById(id, query.fields, query.options, req.isAdmin)
 		.then(function(resource) {
 
 			if(resolver.isDefined(resource)) {
+
+				// clear account
+				for (var i = 0; i < resources.length; i++) {
+					for (var props in resources[i]) {
+						resources[i]["account"] = undefined
+					}
+				}
 
 				res.status(200).json(resource);
 			}
@@ -88,10 +59,19 @@ router.get("/:id", function(req, res, next) {
 // return list of resources
 router.get("/", function(req, res, next) {
 
-	var query = resolver.resolveObject(req.query);
+	var query = qs.parse(req.query, { allowDots: true });
 
 	ResourceController.getResources(query.conditions, query.fields, query.options, req.isAdmin)
 		.then(function(resources) {
+
+			if (!req.isAdmin) {
+				// clear account
+				for (var i = 0; i < resources.length; i++) {
+					for (var props in resources[i]) {
+						resources[i]["account"] = undefined
+					}
+				}
+			}
 
 			res.status(200).json(resources);
 		})
@@ -102,6 +82,43 @@ router.get("/", function(req, res, next) {
 		});
 });
 
+// auth first
+// router.use(function(req, res, next) {
+
+// 	if(req.needAuth) {
+
+// 		if(req.method !== "GET") {
+
+// 			// modifying resource is only permitted to admin or leader
+// 			if(req.isAdmin || req.isLeader) {
+
+// 				next();
+// 			}
+// 			else {
+
+// 				next(resolver.handleError(null, 401, "UnAuthorized."));
+// 			}
+// 		}
+// 		else {
+
+// 			// own users who logged in can view resources
+// 			if(req.isAuth) {
+
+// 				next();
+// 			}
+// 			else {
+
+// 				next(resolver.handleError(null, 401, "UnAuthorized."));
+// 			}
+// 		}
+
+// 	}
+// 	else {
+
+// 		next();
+// 	}
+// });
+
 router.use(require("body-parser").json());
 
 router.post("/", function(req, res, next) {
@@ -111,7 +128,7 @@ router.post("/", function(req, res, next) {
 	ResourceController.addResource(body)
 		.then(function(results) {
 
-			res.status(200).end();			
+			res.status(200).end();
 		})
 		.catch(function(err) {
 
@@ -121,7 +138,10 @@ router.post("/", function(req, res, next) {
 });
 
 // update part of resource
-router.put("/:id", function(req, res, next) {
+router.put("/:id", function (req, res, next) {
+	if (req.session.resource == req.params.id) next();
+	else next(resolver.handleError(null, 401, "UnAuthorized."));
+}, function(req, res, next) {
 
 	var id = req.params.id;
 	var body = req.body;
@@ -140,12 +160,11 @@ router.put("/:id", function(req, res, next) {
 
 				res.status(200).json({ new: newResource });
 			})
-			.catch(function(err) {console.log(err);
-
+			.catch(function(err) {
 				var error = resolver.handleError(err);
 				next(error);
-			});	
-	}	
+			});
+	}
 });
 
 router.delete("/:id", function(req, res, next) {

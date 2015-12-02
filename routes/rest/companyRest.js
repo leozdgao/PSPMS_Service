@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var qs = require('qs');
 
 var CompanyController = require("../../controllers/companyController");
 var resolver = require("../../helpers/resolve");
@@ -24,14 +25,15 @@ router.use(function(req, res, next) {
 
 router.param("id", function(req, res, next, id) {
 
-	if(!resolver.isNumber(id)) {
-
-		next(resolver.handleError(null, 400, "Invalid company id."));
-	}
-	else {
-
-		next();
-	}
+	// if(!resolver.isNumber(id)) {
+	//
+	// 	next(resolver.handleError(null, 400, "Invalid company id."));
+	// }
+	// else {
+	//
+	// 	next();
+	// }
+	next()
 });
 
 router.param("pid", function(req, res, next, pid) {
@@ -48,7 +50,7 @@ router.param("pid", function(req, res, next, pid) {
 
 router.get("/", function(req, res, next) {
 
-	var query = resolver.resolveObject(req.query);
+	var query = qs.parse(req.query, { allowDots: true });
 
 	CompanyController.getCompanies(query.conditions, query.fields, query.options, req.isAdmin)
 		.then(function(companies) {
@@ -64,7 +66,7 @@ router.get("/", function(req, res, next) {
 
 router.get("/:id", function(req, res, next) {
 
-	var query = resolver.resolveObject(req.query);
+	var query = qs.parse(req.query, { allowDots: true });
 	var id = req.params.id;
 
 	CompanyController.getCompanyById(id, query.fields, query.options, req.isAdmin)
@@ -88,7 +90,7 @@ router.get("/:id", function(req, res, next) {
 
 router.get("/:id/projects", function(req, res, next) {
 
-	var query = resolver.resolveObject(req.query);
+	var query = qs.parse(req.query, { allowDots: true });
 	var id = req.params.id;
 
 	CompanyController.getProjectIds(id, query.options, req.isAdmin)
@@ -159,7 +161,6 @@ router.put("/:id", function(req, res, next) {
 				res.status(200).json({ new: newCompany });
 			})
 			.catch(function(err) {
-				console.log(err);
 				var error = resolver.handleError(err);
 				next(error);
 			});

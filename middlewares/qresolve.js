@@ -1,28 +1,34 @@
 module.exports = function() {
 	return function (req, res, next) {
 
-		var reISO = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/;
-		    var reMsAjax = /^\/Date\((d|-|.*)\)[\/|\\]$/;
-		   
-		    JSON.dateParser = function (key, value) {
-		        if (typeof value === 'string') {
-		            var a = reISO.exec(value);
-		            if (a) return new Date(value);
-		            a = reMsAjax.exec(value);
-		            if (a) {
-		                var b = a[1].split(/[-+,.]/);
-		                return new Date(b[0] ? +b[0] : 0 - +b[1]);
-		            }
-		        }
-		        return value;
-		    };
+				var objectParser = function (query) {
+					for (var prop in query) {
+						if (query.hasOwnProperty(prop)) {
+							if (typeof query[prop] == 'string') {
+								if (query[prop] == 'true') {
+									query[prop] = true;
+								} else if(query[prop] == 'false') {
+									query[prop] = false;
+								} else if (isNaN(Number(query[prop])) == false) {
+									query[prop] = Number(query[prop]);
+								} else if (isNaN(Date.parse(query[prop])) == false) {
+									query[prop] = Date.parse(query[prop]);
+								}
+							} else if (typeof query[prop] == 'object') {
+								query[prop] = objectParser(query[prop]);
+							}
+						}
+					}
+					return query;
+				}
 
 		try {
-			var query = JSON.parse(req.query.q, JSON.dateParser);
+			var query = req.query;
+			query = objectParser(query);
 			req.query = query;
 		}
 		catch(ex) {}
 
 		next();
-	}	
+	}
 }

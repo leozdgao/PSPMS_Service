@@ -15,14 +15,14 @@ CompanyController.getCompanies = function(conditions, fields, options) {
 
 CompanyController.getCompanyById = function(id, fields, options) {
 
-	var conditions = { companyId: id };
+	var conditions = { _id: id };
 
 	return this._findOne(conditions, fields, options);
 }
 
 CompanyController.getProjectIds = function(id, options) {
 
-	var conditions = { companyId: id };
+	var conditions = { _id: id };
 
 	return this.model.findOne(conditions)
 		.populate('projects', 'projectId name startDate lastUpdateDate status').execAsync();
@@ -41,7 +41,7 @@ CompanyController.addCompany = function(company) {
 
 				self._query({}, "companyId", { "sort": { "companyId": -1 } })
 					.then(function(results) {
-						
+
 						var lastCompany = results[0] || {};
 						// set last companyId
 						last = parseInt(lastCompany.companyId);
@@ -52,7 +52,7 @@ CompanyController.addCompany = function(company) {
 					.catch(function(err) {
 
 						reject(err);
-					});	
+					});
 			}
 			else {
 
@@ -69,7 +69,7 @@ CompanyController.addCompany = function(company) {
 
 CompanyController.updateCompanyById = function(id, update, options) {
 
-	var conditions = { companyId: id };
+	var conditions = { _id: id };
 
 	return this._updateOne(conditions, update, options);
 }
@@ -81,7 +81,7 @@ CompanyController.updateCompany = function(conditions, update, options) {
 
 CompanyController.removeCompanyById = function(id, options) {
 
-	var conditions = { companyId: id }, self = this;
+	var conditions = { _id: id }, self = this;
 
 	return self._findOne(conditions)
 		.then(function(company) {

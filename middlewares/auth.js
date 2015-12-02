@@ -25,7 +25,7 @@ module.exports = function() {
 			else {
 
 				AccountController.getSession(token)
-					.then(function(session) { console.log(session);
+					.then(function(session) { 
 
 						//save cache
 						sessionCache.set(token, session || void(0));
@@ -42,13 +42,13 @@ module.exports = function() {
 
 			setProperties();
 			next();
-		} 	
+		}
 
 		function setProperties(session) {
 
 			var session = (resolver.isDefined(session) && session.expire >= Date.now())
 							 ? session :  {};
-				
+
 			req.session = session;
 			req.isAuth = !!session.role;
 			req.isMember = session.role >= 1;

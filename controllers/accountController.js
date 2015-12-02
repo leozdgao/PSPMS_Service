@@ -8,58 +8,72 @@ var md5 = dataHash.md5;
 var Resource = model.Resource;
 var Session = model.Session;
 
-exports.checkPassword = function checkPassword(uid, pwd) {
-
+exports.checkPassword = function checkPassword (uid, pwd) {
 	return new Promise(function(resolve, reject) {
-
 		var user;
-
 		Resource.findOneAsync({'account.uid': uid})
 			.then(function(u) {
-
 				if(u != null) {
-					
 					user = u;
-
 					return hash(pwd, user.account.salt);
 				}
 				// can't find user
 				else {
-
-					reject("Can't find user.");	
+					reject("Can't find user.");
 				}
 			})
 			.then(function(code) {
-
 				if(user.account.pwd === code) {
-
 					resolve(user);
 				}
 				// wrong password
 				else {
-
 					reject("Wrong password.");
 				}
 			})
 			.catch(function(err) {
-
 				reject();
 			});
 	});
 };
 
+exports.changePassword = function changePassword (id, oldpwd, newpwd) {
+	return new Promise(function (resolve, reject) {
+		var user;
+		Resource.findOneAsync({ '_id': id })
+			.then(function (u) {
+				if (u != null && u.account && u.account.uid) {
+					user = u;
+					exports.checkPassword(u.account.uid, oldpwd)
+						.then(function () {
+							hash(newpwd).then(function (results) {
+								var salt = results[0]
+								var pwd = results[1]
+								resolve(Resource.findOneAndUpdateAsync({ _id: id }, { 'account.salt': salt, 'account.pwd': pwd }))
+							})
+						})
+						.catch(function () {
+							reject('wrong password')
+						})
+				}
+				else {
+					reject('user not exist')
+				}
+			})
+			.catch(function (e) {
+				reject()
+			})
+	})
+}
+
 exports.checkUnique = function checkUnique(uid) {
-
 	return new Promise(function(resolve, reject) {
-
 		Resource.findOneAsync({'account.uid': uid})
 			.then(function(user) {
-
 				if(user == null) resolve();
 				else reject("User already exist");
 			})
 			.catch(function(err) {
-
 				reject(err);
 			});
 	});
@@ -68,7 +82,6 @@ exports.checkUnique = function checkUnique(uid) {
 exports.newUser = function newUser(resourceId, uid, pwd, role) {
 
 	return new Promise(function(resolve, reject) {
-
 		// check uid
 		exports.checkUnique(uid)
 			.then(function() {
@@ -105,7 +118,7 @@ exports.newUser = function newUser(resourceId, uid, pwd, role) {
 				var num = results[1];
 				if(num >= 1) {
 
-					resolve(results[0]);	
+					resolve(results[0]);
 				}
 				else {
 
@@ -131,7 +144,7 @@ exports.generateSession = function generateSession(resource) {
 					session.resource = resource._id;
 					session.role = resource.account.role;
 					session.token = md5(secret);
-					session.expire = Date.now() + 3600000; // session expired after an hour
+					session.expire = Date.now() + 3600000 * 24; // session expired after an hour
 
 					return session.saveAsync();
 				});
@@ -149,7 +162,7 @@ exports.removeSession = function removeSession(token) {
 
 exports.updateLoginDate = function updateLoginDate(uid) {
 
-	return Resource.updateAsync({ _id: uid }, { $currentDate: { 'account.lastLoginDate': true } }); 
+	return Resource.updateAsync({ _id: uid }, { $currentDate: { 'account.lastLoginDate': true } });
 };
 
 exports.resetAccount = function resetAccount(id) {

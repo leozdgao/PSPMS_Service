@@ -16,21 +16,21 @@ ProjectController.getProjects = function(conditions, fields, options) {
 
 ProjectController.getProjectById = function(id, fields, options) {
 
-	var conditions = { projectId: id };
+	var conditions = { _id: id };
 
 	return this._findOne(conditions, fields, options);
 }
 
 ProjectController.getCompanyOfProject = function(id, fields) {
 
-	var conditions = { projectId: id };
+	var conditions = { _id: id };
 
 	return this.model.findOne(conditions).populate('companyId', fields).execAsync();
 }
 
 ProjectController.getJobsOfProject = function(id, fields) {
 
-	var conditions = { projectId: id };
+	var conditions = { _id: id };
 
 	return this.model.findOne(conditions).populate('jobs', fields).execAsync();
 }
@@ -49,7 +49,7 @@ ProjectController.addProject = function(project) {
 
 				self._query({}, "projectId", { "sort": { "projectId": -1 } })
 					.then(function(results) {
-						
+
 						var lastProject = results[0] || {};
 						// set last companyId
 						last = parseInt(lastProject.projectId);
@@ -60,16 +60,14 @@ ProjectController.addProject = function(project) {
 					.catch(function(err) {
 
 						reject(err);
-					});	
+					});
 			}
 			else {
-
 				project.projectId = ++last;
 				resolve(self._insert(project));
 			}
 		}
 		else {
-
 			resolve(self._insert(project));
 		}
 	})
@@ -87,14 +85,14 @@ ProjectController.addProject = function(project) {
 
 ProjectController.updateProjectById = function(id, update, options) {
 
-	var conditions = { projectId: id };
+	var conditions = { _id: id };
 
 	return this._updateOne(conditions, update, options);
 }
 
 ProjectController.changeCompany = function(id, cid) {
 
-	var conditions = { projectId: id }, self = this;
+	var conditions = { _id: id }, self = this;
 
 	return self._findOne(conditions)
 		.then(function(project) {
@@ -112,7 +110,7 @@ ProjectController.changeCompany = function(id, cid) {
 
 ProjectController.removeProjectById = function(id, options) {
 
-	var conditions = { projectId: id }, self = this, oProject, tempP;
+	var conditions = { _id: id }, self = this, oProject, tempP;
 
 	return self._findOne(conditions)
 		.then(function(project) {
@@ -136,7 +134,7 @@ ProjectController.removeProjectById = function(id, options) {
 			tempP = result;
 			if(oProject) {
 
-				return CompanyModel.findOneAndUpdateAsync({ _id: oProject.companyId }, { '$pull': { projects: oProject._id } });	
+				return CompanyModel.findOneAndUpdateAsync({ _id: oProject.companyId }, { '$pull': { projects: oProject._id } });
 			}
 		})
 		.then(function(result) {

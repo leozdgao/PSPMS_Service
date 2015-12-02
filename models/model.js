@@ -6,5 +6,6 @@ module.exports = {
 	Company: mongoose.model("Company", require("./schemas/company")),
 	Project: mongoose.model("Project", require("./schemas/project")),
 	Job: mongoose.model("Job", require("./schemas/job")),
-	Trunk: mongoose.model("Trunk", require("./schemas/trunk"))
+	Trunk: mongoose.model("Trunk", require("./schemas/trunk")),
+	ArticleSet: mongoose.model("ArticleSet", require("./schemas/articleSet")),
 }
