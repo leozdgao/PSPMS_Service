@@ -17,15 +17,15 @@ router.use("/help", function(req, res) {
 });
 
 // auth
-// router.use(function(req, res, next) {
-//
-// 	// only leader can modify companies
-// 	if(req.needAuth && req.method !== "GET" && !req.isLeader) {
-//
-// 		next(resolver.handleError(null, 401, "UnAuthorized."));
-// 	}
-// 	else next();
-// });
+router.use(function(req, res, next) {
+
+	// only leader can modify companies
+	if(req.needAuth && req.method !== "GET" && !req.isLeader) {
+
+		next(resolver.handleError(null, 401, "UnAuthorized."));
+	}
+	else next();
+});
 
 router.get("/", function(req, res, next) {
 	var query = qs.parse(req.query, { allowDots: true });
