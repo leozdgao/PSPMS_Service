@@ -78,20 +78,25 @@ ArticleSetController.deleteArticleSet = function(folderPath) {
   return promise;
 }
 
-ArticleSetController.moveArticleSet = function(conditions, fields, options) {
-  // var self = this;
-  // var promise = self.searchArticleSet(folderPath)
-  //   .then(function (dirFolder) {
-  //     var update = '{"$unset":{"folders', path = '';
-  //     for (index of folderPath) {
-  //       path += '.' + index
-  //     }
-  //     update += path + '":1}}'
-  //     update = JSON.parse(update);
-  //
-  //     return self._updateOne({}, update, { 'new': true });
-  //   })
-  // return promise;
+ArticleSetController.moveArticleSet = function(fromFolder, toFolder) {
+	var self = this;
+  var promise = self.searchArticleSet(fromFolder)
+    .then(function (dirFolder) {
+
+			var update = '{"$push":{"folders', path = '';
+      for (index of toFolder) {
+        path += '.' + index + '.folders'
+      }
+      update += path + '":{}}}'
+      update = JSON.parse(update);
+      update['$push']['folders' + path] = dirFolder;
+
+      return self._updateOne({}, update, { 'new': true });
+		})
+		.then(function () {
+			return self.deleteArticleSet(fromFolder);
+		})
+	return promise;
 }
 
 ArticleSetController.addArticle = function(folderPath, fileID) {
